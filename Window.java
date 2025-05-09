@@ -1,66 +1,75 @@
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Window extends Application {
 
-    private double mousePressedX;
-    private double mousePressedY;
-    private double offsetX = 0;
-    private double offsetY = 0;
-    private double sensitivity = 0.1;  // Lower value = less sensitivity
+    private boolean isFullScreen = true;
+    private final Set<KeyCode> activeKeys = new HashSet<>();
 
     @Override
     public void start(Stage primaryStage) {
-        // Create root pane
         Pane root = new Pane();
 
-        // Create a blue square
-        int squareSize = 100;
+        // size of square
+        int squareSize = 50;
         Rectangle blueSquare = new Rectangle(squareSize, squareSize, Color.BLUE);
-
-        // Center the square initially
-        root.widthProperty().addListener((obs, oldVal, newVal) -> {
-            blueSquare.setX((newVal.doubleValue() - squareSize) / 2);
-        });
-        root.heightProperty().addListener((obs, oldVal, newVal) -> {
-            blueSquare.setY((newVal.doubleValue() - squareSize) / 2);
-        });
+        blueSquare.setX((1000 - squareSize) / 2.0);
+        blueSquare.setY((1000 - squareSize) / 2.0);
 
         root.getChildren().add(blueSquare);
 
-        // Mouse pressed event to record initial position
-        root.setOnMousePressed(event -> {
-            mousePressedX = event.getSceneX();
-            mousePressedY = event.getSceneY();
+        //size of windowed screen
+        Scene scene = new Scene(root, 1000, 1000);
+
+        // Handle key press and release
+        scene.setOnKeyPressed(event -> {
+            activeKeys.add(event.getCode());
+            if (event.getCode() == KeyCode.ESCAPE) {
+                isFullScreen = !isFullScreen;
+            }
         });
 
-        // Mouse dragged event to move the scene view
-        root.setOnMouseDragged(event -> {
-            // Calculate the offset between the initial and current mouse position
-            offsetX += (event.getSceneX() - mousePressedX) * sensitivity;
-            offsetY += (event.getSceneY() - mousePressedY) * sensitivity;
+        scene.setOnKeyReleased(event -> activeKeys.remove(event.getCode()));
 
-            // Update the root pane's position to simulate the "view" movement
-            root.setLayoutX(root.getLayoutX() + offsetX);
-            root.setLayoutY(root.getLayoutY() + offsetY);
+        // Use AnimationTimer for smooth movement
+        AnimationTimer timer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                // sets the squares speed
+                double speed = 2;
+                if (activeKeys.contains(KeyCode.W)) {
+                    blueSquare.setY(blueSquare.getY() - speed);
+                }
+                if (activeKeys.contains(KeyCode.S)) {
+                    blueSquare.setY(blueSquare.getY() + speed);
+                }
+                if (activeKeys.contains(KeyCode.A)) {
+                    blueSquare.setX(blueSquare.getX() - speed);
+                }
+                if (activeKeys.contains(KeyCode.D)) {
+                    blueSquare.setX(blueSquare.getX() + speed);
+                }
 
-            // Update the initial mouse position for the next drag
-            mousePressedX = event.getSceneX();
-            mousePressedY = event.getSceneY();
-        });
+                if (primaryStage.isFullScreen() != isFullScreen) {
+                    primaryStage.setFullScreen(isFullScreen);
+                }
+            }
+        };
+        timer.start();
 
-        // Create the scene and stage
-        Scene scene = new Scene(root, 1000, 1000); // Initial size
-        primaryStage.setTitle("First Person View");
         primaryStage.setScene(scene);
-
-        // Center the window on the screen
-        primaryStage.centerOnScreen();
-
+        primaryStage.setTitle("WASD Square Movement");
+        primaryStage.setFullScreen(true);
+        primaryStage.setFullScreenExitHint("");
         primaryStage.show();
     }
 

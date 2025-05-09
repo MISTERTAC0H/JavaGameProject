@@ -12,4 +12,4 @@ Side view (Terreria)
 
 Thinking of doing a sandbox game similar to minecraft and terreria
 
-Something similar to minecraft
+going to do a 2D game dont have to worry about a 
