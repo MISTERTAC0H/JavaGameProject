@@ -1,79 +1,86 @@
-import javafx.animation.AnimationTimer;
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.input.KeyCode;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.stage.Stage;
+import com.google.gson.*;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.Map;
 
-import java.util.HashSet;
-import java.util.Set;
+public class Window extends JPanel implements ActionListener {
 
-public class Window extends Application {
+    Timer timer = new Timer(16, this);
+    BufferedImage spriteSheet;
+    Rectangle frameRect;
+    int x = 50, y = 50; // Position of sprite
+    int speed = 5;
 
-    private boolean isFullScreen = true;
-    private final Set<KeyCode> activeKeys = new HashSet<>();
-
-    @Override
-    public void start(Stage primaryStage) {
-        Pane root = new Pane();
-
-        // size of square
-        int squareSize = 50;
-        Rectangle blueSquare = new Rectangle(squareSize, squareSize, Color.BLUE);
-        blueSquare.setX((1000 - squareSize) / 2.0);
-        blueSquare.setY((1000 - squareSize) / 2.0);
-
-        root.getChildren().add(blueSquare);
-
-        //size of windowed screen
-        Scene scene = new Scene(root, 1000, 1000);
-
-        // Handle key press and release
-        scene.setOnKeyPressed(event -> {
-            activeKeys.add(event.getCode());
-            if (event.getCode() == KeyCode.ESCAPE) {
-                isFullScreen = !isFullScreen;
-            }
-        });
-
-        scene.setOnKeyReleased(event -> activeKeys.remove(event.getCode()));
-
-        // Use AnimationTimer for smooth movement
-        AnimationTimer timer = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                // sets the squares speed
-                double speed = 2;
-                if (activeKeys.contains(KeyCode.W)) {
-                    blueSquare.setY(blueSquare.getY() - speed);
-                }
-                if (activeKeys.contains(KeyCode.S)) {
-                    blueSquare.setY(blueSquare.getY() + speed);
-                }
-                if (activeKeys.contains(KeyCode.A)) {
-                    blueSquare.setX(blueSquare.getX() - speed);
-                }
-                if (activeKeys.contains(KeyCode.D)) {
-                    blueSquare.setX(blueSquare.getX() + speed);
-                }
-
-                if (primaryStage.isFullScreen() != isFullScreen) {
-                    primaryStage.setFullScreen(isFullScreen);
-                }
-            }
-        };
+    public Window() {
+        setPreferredSize(new Dimension(400, 400));
+        setBackground(Color.BLACK);
+        loadSpriteData();
         timer.start();
 
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("WASD Square Movement");
-        primaryStage.setFullScreen(true);
-        primaryStage.setFullScreenExitHint("");
-        primaryStage.show();
+        // Optional: move with arrow keys
+        addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_LEFT -> x -= speed;
+                    case KeyEvent.VK_RIGHT -> x += speed;
+                    case KeyEvent.VK_UP -> y -= speed;
+                    case KeyEvent.VK_DOWN -> y += speed;
+                }
+                repaint();
+            }
+        });
+        setFocusable(true);
+    }
+
+    private void loadSpriteData() {
+        try {
+            // Load JSON
+            Reader reader = new FileReader("Cat.json");
+            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+
+            // Load image
+            spriteSheet = ImageIO.read(new File("New Piskel.png"));
+
+            // Read frame info
+            JsonObject frames = json.getAsJsonObject("frames");
+            Map.Entry<String, JsonElement> firstFrame = frames.entrySet().iterator().next(); // We assume one frame for now
+            JsonObject frameObj = firstFrame.getValue().getAsJsonObject().getAsJsonObject("frame");
+
+            int fx = frameObj.get("x").getAsInt();
+            int fy = frameObj.get("y").getAsInt();
+            int fw = frameObj.get("w").getAsInt();
+            int fh = frameObj.get("h").getAsInt();
+
+            frameRect = new Rectangle(fx, fy, fw, fh);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (spriteSheet != null && frameRect != null) {
+            g.drawImage(spriteSheet,
+                x, y, x + frameRect.width, y + frameRect.height,
+                frameRect.x, frameRect.y, frameRect.x + frameRect.width, frameRect.y + frameRect.height,
+                this);
+        }
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        repaint();
     }
 
     public static void main(String[] args) {
-        launch(args);
+        JFrame frame = new JFrame("Cat Sprite Example");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(new Window());
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
 }
