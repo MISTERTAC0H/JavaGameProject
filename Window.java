@@ -18,12 +18,12 @@ public class Window extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        int tileSize = 32;
+        int tileSize = 60;
         String tileMapPath = "/world.txt"; // Note the leading slash for resources
 
         // Create the tile map
         tileMap = new TileMap(tileMapPath, tileSize);
-
+        tileMap.setSolidTiles(2, 3);
         // Load the player's sprite - FIXED LINE 29
         // In Window.java
         Image playerImage = loadImage("/Cat.png");

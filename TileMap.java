@@ -12,6 +12,7 @@ public class TileMap {
         this.tileSize = tileSize;
         loadTileMap(path);
         loadTileImages();
+        setSolidTiles(2, 3); // Mark tiles 2 and 3 as solid
     }
 
     private void loadTileMap(String path) {
@@ -44,13 +45,15 @@ public class TileMap {
     }
 
     private void loadTileImages() {
-        tileImages = new Image[4];
+        tileImages = new Image[6];
         // walk on 
         tileImages[0] = new Image(getClass().getResourceAsStream("Grass.png")); // Grass
         tileImages[1] = new Image(getClass().getResourceAsStream("GrassWithGrass.png")); // Grass With Grass
         // cant walk on
         tileImages[2] = new Image(getClass().getResourceAsStream("CobbleStone.png")); // Cobblestone
         tileImages[3] = new Image(getClass().getResourceAsStream("Tree.png")); // Tree
+        tileImages[4] = new Image(getClass().getResourceAsStream("DungeonEnterance.png")); // Dungeon Enterance
+        tileImages[5] = new Image(getClass().getResourceAsStream("RockFloor.png")); // Dungeon Enterance
     }
 
     public void draw(GraphicsContext gc, double cameraX, double cameraY, double canvasWidth, double canvasHeight) {
@@ -72,10 +75,16 @@ public class TileMap {
     }
 
     public boolean isSolid(int row, int col) {
-        if (row < 0 || row >= rows || col < 0 || col >= cols) {
-            return true; // Out of bounds counts as solid
-        }
-        return tiles[row][col] == 2; // 1 is cobblestone (solid)
+    if (row < 0 || row >= rows || col < 0 || col >= cols) {
+        return true;
+    }
+    return solidTiles.contains(tiles[row][col]);
+}
+
+    private final Set<Integer> solidTiles = new HashSet<>();
+
+    public void setSolidTiles(Integer... tileIds) {
+        solidTiles.addAll(Arrays.asList(tileIds));
     }
 
     public int getWidth() {
