@@ -45,7 +45,7 @@ public class TileMap {
     }
 
     private void loadTileImages() {
-        tileImages = new Image[6];
+        tileImages = new Image[7];
         // walk on 
         tileImages[0] = new Image(getClass().getResourceAsStream("Grass.png")); // Grass
         tileImages[1] = new Image(getClass().getResourceAsStream("GrassWithGrass.png")); // Grass With Grass
@@ -53,7 +53,8 @@ public class TileMap {
         tileImages[2] = new Image(getClass().getResourceAsStream("CobbleStone.png")); // Cobblestone
         tileImages[3] = new Image(getClass().getResourceAsStream("Tree.png")); // Tree
         tileImages[4] = new Image(getClass().getResourceAsStream("DungeonEnterance.png")); // Dungeon Enterance
-        tileImages[5] = new Image(getClass().getResourceAsStream("RockFloor.png")); // Dungeon Enterance
+        tileImages[5] = new Image(getClass().getResourceAsStream("RockFloor.png")); // Rock floor
+        tileImages[6] = new Image(getClass().getResourceAsStream("DungeonExit.png")); // Dungeon Enterance
     }
 
     public void draw(GraphicsContext gc, double cameraX, double cameraY, double canvasWidth, double canvasHeight) {
