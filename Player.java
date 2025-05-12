@@ -32,21 +32,21 @@ public class Player {
         int bottomTile = (int) ((newY + height - 1) / tileSize);
         
         // Collision checks
-        if (dx > 0) { // Moving right
+        if (dx > 1) { // Moving right
             if (tileMap.isSolid(topTile, rightTile) || tileMap.isSolid(bottomTile, rightTile)) {
                 newX = (rightTile) * tileSize - width;
             }
-        } else if (dx < 0) { // Moving left
+        } else if (dx < 1) { // Moving left
             if (tileMap.isSolid(topTile, leftTile) || tileMap.isSolid(bottomTile, leftTile)) {
                 newX = (leftTile + 1) * tileSize;
             }
         }
         
-        if (dy > 0) { // Moving down
+        if (dy > 1) { // Moving down
             if (tileMap.isSolid(bottomTile, leftTile) || tileMap.isSolid(bottomTile, rightTile)) {
                 newY = (bottomTile) * tileSize - height;
             }
-        } else if (dy < 0) { // Moving up
+        } else if (dy < 1) { // Moving up
             if (tileMap.isSolid(topTile, leftTile) || tileMap.isSolid(topTile, rightTile)) {
                 newY = (topTile + 1) * tileSize;
             }
