@@ -45,8 +45,10 @@ public class TileMap {
 
     private void loadTileImages() {
         tileImages = new Image[4];
+        // walk on 
         tileImages[0] = new Image(getClass().getResourceAsStream("Grass.png")); // Grass
         tileImages[1] = new Image(getClass().getResourceAsStream("GrassWithGrass.png")); // Grass With Grass
+        // cant walk on
         tileImages[2] = new Image(getClass().getResourceAsStream("CobbleStone.png")); // Cobblestone
         tileImages[3] = new Image(getClass().getResourceAsStream("Tree.png")); // Tree
     }
@@ -73,7 +75,7 @@ public class TileMap {
         if (row < 0 || row >= rows || col < 0 || col >= cols) {
             return true; // Out of bounds counts as solid
         }
-        return tiles[row][col] == 1; // 1 is cobblestone (solid)
+        return tiles[row][col] == 2; // 1 is cobblestone (solid)
     }
 
     public int getWidth() {
