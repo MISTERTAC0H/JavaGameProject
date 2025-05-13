@@ -21,6 +21,14 @@ Pokemon style of combat
 
 
 TO DO LIST
-make the camera follow character
-collisions with CobbleStone and Trees
-Fix collision, random jumping around
+- make the camera follow character
+- collisions with CobbleStone and Trees
+- Fix collision, random jumping around
+- enter and exit for DungeonA1
+make it so that when you enter a dungeon you enter where the exit is and exit where the enterance is
+animate player
+make entity class
+    weapons, tools, items
+make health and stats for player
+item bar
+health bar
