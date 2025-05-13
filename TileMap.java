@@ -8,11 +8,45 @@ public class TileMap {
     private int rows, cols;
     private Image[] tileImages;
 
+    private String currentMapPath;
+
+    private Window window;
+
+    public TileMap(Window window) {
+        this.window = window;
+    }
+
     public TileMap(String path, int tileSize) {
         this.tileSize = tileSize;
+        this.currentMapPath = path;
         loadTileMap(path);
         loadTileImages();
-        setSolidTiles(2, 3); // Mark tiles 2 and 3 as solid
+        setSolidTiles(2, 3);
+        //mapChange(4);
+    }
+
+    public static String mapChange(int mapNumber) {
+    // Define a base path if needed (adjust according to your project structure)
+    //String basePath = "maps/"; // Example: "maps/" or "" if files are in root
+    if (mapNumber < 1) {
+            mapNumber = 1;
+    }
+    switch (mapNumber) {
+        case 1:
+            // return basePath + "DungeonA1.txt";
+            return "world.txt";
+        case 2:
+            // return basePath + "DungeonA1.txt";
+            return "DungeonA1.txt";
+        default:
+            // Return a default map or handle invalid input
+            // return basePath + "world.txt";
+            return "world.txt";
+    }
+}
+
+    public String getCurrentMapPath() {
+        return currentMapPath;
     }
 
     private void loadTileMap(String path) {
@@ -49,12 +83,13 @@ public class TileMap {
         // walk on 
         tileImages[0] = new Image(getClass().getResourceAsStream("Grass.png")); // Grass
         tileImages[1] = new Image(getClass().getResourceAsStream("GrassWithGrass.png")); // Grass With Grass
-        // cant walk on
-        tileImages[2] = new Image(getClass().getResourceAsStream("CobbleStone.png")); // Cobblestone
-        tileImages[3] = new Image(getClass().getResourceAsStream("Tree.png")); // Tree
+        tileImages[5] = new Image(getClass().getResourceAsStream("RockFloor.png")); // Rock floor
         tileImages[4] = new Image(getClass().getResourceAsStream("DungeonEnterance.png")); // Dungeon Enterance
         tileImages[5] = new Image(getClass().getResourceAsStream("RockFloor.png")); // Rock floor
         tileImages[6] = new Image(getClass().getResourceAsStream("DungeonExit.png")); // Dungeon Enterance
+        // cant walk on
+        tileImages[2] = new Image(getClass().getResourceAsStream("CobbleStone.png")); // Cobblestone
+        tileImages[3] = new Image(getClass().getResourceAsStream("Tree.png")); // Tree
     }
 
     public void draw(GraphicsContext gc, double cameraX, double cameraY, double canvasWidth, double canvasHeight) {
@@ -74,6 +109,18 @@ public class TileMap {
             }
         }
     }
+
+    public int getTileAtPosition(double worldX, double worldY) {
+    int tileSize = getTileSize();
+    int col = (int)(worldX / tileSize);
+    int row = (int)(worldY / tileSize);
+    
+    if (row < 0 || row >= rows || col < 0 || col >= cols) {
+        return -1; // Out of bounds
+    }
+    return tiles[row][col];
+}
+
 
     public boolean isSolid(int row, int col) {
     if (row < 0 || row >= rows || col < 0 || col >= cols) {

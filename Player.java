@@ -5,72 +5,96 @@ public class Player {
     private Image sprite;
     private double x, y;
     private double width, height;
+    private Window window;
 
-    public Player(Image sprite, double x, double y) {
-        if (sprite == null) {
-            throw new IllegalArgumentException("Sprite image cannot be null");
-        }
-        this.sprite = sprite;
-        this.width = sprite.getWidth();
-        this.height = sprite.getHeight();
+    public Player(Image sprite, double x, double y, Window window) {
+    if (sprite == null || window == null) {
+        throw new IllegalArgumentException("Sprite image and Window cannot be null");
+    }
+    this.sprite = sprite;
+    this.width = sprite.getWidth();
+    this.height = sprite.getHeight();
+    this.x = x;
+    this.y = y;
+    this.window = window;
+
+    System.out.println("Player created with dimensions: " + width + "x" + height);
+}
+
+
+    public void setX(double x) {
         this.x = x;
+    }
+
+    public void setY(double y) {
         this.y = y;
-        
-        System.out.println("Player created with dimensions: " + width + "x" + height);
+    }
+
+    public void setPosition(double x, double y) {
+        setX(x);
+        setY(y);
+    }
+
+    public void setPosition(double x, double y, TileMap tileMap) {
+        if (tileMap != null) {
+            double maxX = tileMap.getWidth() - this.width;
+            double maxY = tileMap.getHeight() - this.height;
+            this.x = Math.max(0, Math.min(x, maxX));
+            this.y = Math.max(0, Math.min(y, maxY));
+        } else {
+            setX(x);
+            setY(y);
+        }
     }
 
     public void tryMove(double dx, double dy, TileMap tileMap) {
         if (tileMap == null) return;
-    
+
         int tileSize = tileMap.getTileSize();
         boolean canMoveX = true;
         boolean canMoveY = true;
-    
-        // Check X movement (horizontal)
+
+        // Check X movement
         if (dx != 0) {
             double newX = x + dx;
             int leftTile = (int) (newX / tileSize);
             int rightTile = (int) ((newX + width - 1) / tileSize);
-            
-            // Check all vertical tiles along the movement edge
             int topEdge = (int) (y / tileSize);
             int bottomEdge = (int) ((y + height - 1) / tileSize);
-            
-            if (dx > 0) { // Moving right
+
+            if (dx > 0) {
                 for (int row = topEdge; row <= bottomEdge; row++) {
                     if (tileMap.isSolid(row, rightTile)) {
                         canMoveX = false;
                         break;
                     }
                 }
-            } else { // Moving left
+            } else {
                 for (int row = topEdge; row <= bottomEdge; row++) {
                     if (tileMap.isSolid(row, leftTile)) {
                         canMoveX = false;
-                    break;
+                        break;
                     }
                 }
             }
         }
-    
-        // Check Y movement (vertical)
+
+        // Check Y movement
         if (dy != 0) {
             double newY = y + dy;
             int topTile = (int) (newY / tileSize);
             int bottomTile = (int) ((newY + height - 1) / tileSize);
-        
-            // Check all horizontal tiles along the movement edge
             int leftEdge = (int) (x / tileSize);
             int rightEdge = (int) ((x + width - 1) / tileSize);
-        
-            if (dy > 0) { // Moving down
+
+            if (dy > 0) {
                 for (int col = leftEdge; col <= rightEdge; col++) {
                     if (tileMap.isSolid(bottomTile, col)) {
                         canMoveY = false;
                         break;
                     }
                 }
-            } else { // Moving up
+            } else {
                 for (int col = leftEdge; col <= rightEdge; col++) {
                     if (tileMap.isSolid(topTile, col)) {
                         canMoveY = false;
@@ -79,14 +103,20 @@ public class Player {
                 }
             }
         }
-    // Apply movement
-    if (canMoveX) x += dx;
-    if (canMoveY) y += dy;
-    
-    // Optional: Handle sliding along walls
-    if (!canMoveX && canMoveY) y += dy; // Slide vertically
-    if (canMoveX && !canMoveY) x += dx; // Slide horizontally
-}
+
+        // Apply movement
+        if (canMoveX) x += dx;
+        if (canMoveY) y += dy;
+
+        // Check if standing on special tile
+        int tileUnderPlayer = tileMap.getTileAtPosition(x + width / 2, y + height / 2);
+        if (tileUnderPlayer == 4) {
+            System.out.println("Player touched tile 4 — triggering map change!");
+            window.changeMap(window.currentMapNumber + 1);
+
+        }
+
+    }
 
     public void draw(GraphicsContext gc, double screenX, double screenY) {
         if (gc == null || sprite == null) return;
@@ -99,5 +129,13 @@ public class Player {
 
     public double getY() {
         return y;
+    }
+
+    public double getWidth() {
+        return width;
+    }
+
+    public double getHeight() {
+        return height;
     }
 }
