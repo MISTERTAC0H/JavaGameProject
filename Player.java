@@ -4,19 +4,24 @@ import java.util.*;
 
 public class Player {
     private Image idleRight;  // guy_right.png
+    private Image idleLeft;  // guy_left.png
     private Image[] walkRightFrames;  // [guy_right_moving_1.png, guy_right_moving_2.png]
+    private Image[] walkLeftFrames;  // [guy_left_moving_1.png, guy_left_moving_2.png]
     private Image currentFrame;
     private double x, y;
     private double width, height;
     private Window window;
     private boolean movingRight = false;
+    private boolean movingLeft = false;
     private int currentFrameIndex = 0;
     private long lastFrameTime = 0;
     private static final long FRAME_DELAY = 200; // milliseconds between frames
 
-    public Player(Image idleRight, Image[] walkRightFrames, double x, double y, Window window) {
+    public Player(Image idleRight, Image[] walkRightFrames,Image idleLeft, Image[] walkLeftFrames, double x, double y, Window window) {
         this.idleRight = idleRight;
         this.walkRightFrames = walkRightFrames;
+        this.idleLeft = idleLeft;
+        this.walkLeftFrames = walkLeftFrames;
         this.currentFrame = idleRight;
         this.width = idleRight.getWidth() * 1.5;
         this.height = idleRight.getHeight() * 1.5;
@@ -130,7 +135,7 @@ public class Player {
 
     }
 
-    public void update(boolean isMovingRight) {
+    public void update(boolean isMovingRight, boolean isMovingLeft) {
         long currentTime = System.currentTimeMillis();
         
         if (isMovingRight) {
@@ -145,6 +150,19 @@ public class Player {
             // Just stopped moving right - return to idle
             currentFrame = idleRight;
             movingRight = false;
+            currentFrameIndex = 0;
+        } else if (isMovingLeft) {
+            // Only animate if enough time has passed
+            if (currentTime - lastFrameTime > FRAME_DELAY) {
+                currentFrameIndex = (currentFrameIndex + 1) % walkLeftFrames.length;
+                currentFrame = walkLeftFrames[currentFrameIndex];
+                lastFrameTime = currentTime;
+            }
+            movingLeft = true;
+        } else if (movingLeft) {
+            // Just stopped moving right - return to idle
+            currentFrame = idleLeft;
+            movingLeft = false;
             currentFrameIndex = 0;
         }
     }

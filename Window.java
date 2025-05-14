@@ -36,13 +36,18 @@ public class Window extends Application {
         Image idleRight = loadImage("guy_right.png");
         Image walkRight1 = loadImage("guy_right_walk_1.png");
         Image walkRight2 = loadImage("guy_right_walk_2.png");
+        Image idleLeft = loadImage("guy_left.png");
+        Image walkLeft1 = loadImage("guy_left_walk_1.png");
+        Image walkLeft2 = loadImage("guy_left_walk_2.png");
+        
         Image[] walkRightFrames = {walkRight1, walkRight2};
+        Image[] walkLeftFrames = {walkLeft1, walkLeft2};
         // image error
-        if (idleRight == null || walkRight1 == null || walkRight2 == null) {
+        if (idleRight == null || walkRight1 == null || walkRight2 == null || idleLeft == null || walkLeft1 == null || walkLeft2 == null) {
             System.err.println("Failed to load player image!");
             return;
         }
-        player = new Player(idleRight, walkRightFrames, tileSize * 5, tileSize * 5, this);
+        player = new Player(idleRight, walkRightFrames, idleLeft, walkLeftFrames, tileSize * 5, tileSize * 5, this);
 
 
         canvas = new Canvas(DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -124,7 +129,7 @@ public class Window extends Application {
                     }
                 }
                 // animation move right
-                player.update(keyPressed[3]);
+                player.update(keyPressed[3], keyPressed[1]);
 
                 // Clear and redraw everything
                 gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
