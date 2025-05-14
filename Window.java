@@ -13,9 +13,20 @@ public class Window extends Application {
     private Player player;
     private double cameraX = 0;
     private double cameraY = 0;
-    private double playerSpeed = 1;
+    private double playerSpeed = 2;
     private boolean[] keyPressed = new boolean[4]; // W, A, S, D
     public int currentMapNumber = 1;
+    private Canvas canvas;
+    private static final double DEFAULT_WIDTH = 1500;
+    private static final double DEFAULT_HEIGHT = 1000;
+    private double fadeOpacity = 0.0;
+    private boolean isFading = false;
+    private boolean isUnfading = false;
+    private static final double FADE_SPEED = 0.004; // Adjust speed as needed
+    private boolean fadeComplete = false;
+
+
+    
 
     @Override
     public void start(Stage primaryStage) {
@@ -23,24 +34,35 @@ public class Window extends Application {
         System.out.println(currentMapNumber);
         tileMap = new TileMap(TileMap.mapChange(currentMapNumber), tileSize);
         tileMap.setSolidTiles(2, 3);
-        // Load the player's sprite - FIXED LINE 29
-        // In Window.java
+        
         Image playerImage = loadImage("Cat.png");
+        // image error
         if (playerImage == null) {
             System.err.println("Failed to load player image!");
             return;
         }
 
-        // Use the image's actual dimensions
         player = new Player(playerImage, tileSize * 5, tileSize * 5, this);
 
-        // Rest of your code remains the same...
-        Canvas canvas = new Canvas(800, 600);
+        canvas = new Canvas(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         Pane root = new Pane();
         root.getChildren().add(canvas);
-        Scene scene = new Scene(root, 800, 600);
+        Scene scene = new Scene(root, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+
+        // Make the canvas resize with the window
+        canvas.widthProperty().bind(root.widthProperty());
+        canvas.heightProperty().bind(root.heightProperty());
+        
+        // Handle window resize and update camera bounds
+        root.widthProperty().addListener((obs, oldVal, newVal) -> {
+            cameraX = Math.max(0, Math.min(cameraX, tileMap.getWidth() - newVal.doubleValue()));
+        });
+        
+        root.heightProperty().addListener((obs, oldVal, newVal) -> {
+            cameraY = Math.max(0, Math.min(cameraY, tileMap.getHeight() - newVal.doubleValue()));
+        });
 
         // Key event handlers
         scene.setOnKeyPressed(event -> {
@@ -70,9 +92,11 @@ public class Window extends Application {
                     player.tryMove(dx, dy, tileMap);
                 }
 
+                // Update camera position based on player
                 cameraX = player.getX() - canvas.getWidth() / 2;
                 cameraY = player.getY() - canvas.getHeight() / 2;
                 
+                // Ensure camera stays within map bounds
                 cameraX = Math.max(0, Math.min(cameraX, tileMap.getWidth() - canvas.getWidth()));
                 cameraY = Math.max(0, Math.min(cameraY, tileMap.getHeight() - canvas.getHeight()));
 
@@ -85,16 +109,12 @@ public class Window extends Application {
                     currentMapNumber++;
                     String newMapPath = TileMap.mapChange(currentMapNumber);
                     if (!newMapPath.equals(tileMap.getCurrentMapPath())) {
-                        // Save player position if needed
-                        double oldX = player.getX();
-                        double oldY = player.getY();
-                        
                         // Create new tilemap
                         tileMap = new TileMap(newMapPath, tileSize);
                         tileMap.setSolidTiles(2, 3);
                         
-                        // Reset player position or set to entrance position
-                        player.setX(tileSize * 2); // Example entrance position
+                        // Reset player position
+                        player.setX(tileSize * 2);
                         player.setY(tileSize * 2);
                         
                         // Reset camera
@@ -103,9 +123,34 @@ public class Window extends Application {
                     }
                 }
 
+                // Clear and redraw everything
                 gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
                 tileMap.draw(gc, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
                 player.draw(gc, player.getX() - cameraX, player.getY() - cameraY);
+
+                if (isFading || isUnfading) {
+                    gc.setGlobalAlpha(fadeOpacity);
+                    gc.setFill(javafx.scene.paint.Color.BLACK);
+                    gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                    gc.setGlobalAlpha(1.0);
+                    
+                    // Update fade opacity
+                    if (isFading) {
+                        fadeOpacity += FADE_SPEED;
+                        if (fadeOpacity >= 1.0) {
+                            fadeOpacity = 1.0;
+                            isFading = false;
+                            fadeComplete = true;
+                        }
+                    } else if (isUnfading) {
+                        fadeOpacity -= FADE_SPEED;
+                        if (fadeOpacity <= 0.0) {
+                            fadeOpacity = 0.0;
+                            isUnfading = false;
+                            fadeComplete = true;
+                        }
+                    }
+                }
             }
         }.start();
 
@@ -114,27 +159,68 @@ public class Window extends Application {
         primaryStage.show();
     }
 
-    public void changeMap(int newMapNumber) {
-    String newMapPath = TileMap.mapChange(newMapNumber);
-    if (!newMapPath.equals(tileMap.getCurrentMapPath())) {
-        this.currentMapNumber = newMapNumber;
-
-        int tileSize = tileMap.getTileSize();
-
-        tileMap = new TileMap(newMapPath, tileSize);
-        tileMap.setSolidTiles(2, 3);
-
-        player.setX(tileSize * 2);
-        player.setY(tileSize * 2);
-
-        // Reset camera
-        cameraX = player.getX() - 400; // canvas.getWidth() / 2
-        cameraY = player.getY() - 300; // canvas.getHeight() / 2
-
-        System.out.println("Changed to map #" + newMapNumber);
+    public void transitionMap(int newMapNumber) {
+    // Only start transition if not already fading
+    if (!isFading && !isUnfading) {
+        fadeBlack();
+        
+        new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                if (isFadeComplete()) {
+                    // When fade to black is complete, change map
+                    changeMap(newMapNumber);
+                    // Start unfading
+                    unfadeBlack();
+                    this.stop(); // Stop this timer
+                }
+            }
+        }.start();
     }
 }
 
+    public void changeMap(int newMapNumber) {
+        String newMapPath = TileMap.mapChange(newMapNumber);
+        if (!newMapPath.equals(tileMap.getCurrentMapPath())) {
+            this.currentMapNumber = newMapNumber;
+            int tileSize = tileMap.getTileSize();
+
+            tileMap = new TileMap(newMapPath, tileSize);
+            tileMap.setSolidTiles(2, 3);
+
+            player.setX(tileSize * 2);
+            player.setY(tileSize * 2);
+
+            // Reset camera
+            cameraX = player.getX() - canvas.getWidth() / 2;
+            cameraY = player.getY() - canvas.getHeight() / 2;
+
+            System.out.println("Changed to map #" + newMapNumber);
+        }
+    }
+
+    public void fadeBlack() {
+        fadeOpacity = 0.0;
+        isFading = true;
+        isUnfading = false;
+        fadeComplete = false;
+    }
+
+    public void unfadeBlack() {
+        fadeOpacity = 1.0;
+        isUnfading = true;
+        isFading = false;
+        fadeComplete = false;
+    }
+
+    public boolean isFadeComplete() {
+    // Only return true once when the fade completes
+    if (fadeComplete) {
+        fadeComplete = false;  // Reset the flag
+        return true;
+    }
+    return false;
+}
 
     public void setCurrentMapNumber(int newNumber) {
         this.currentMapNumber = newNumber;
@@ -145,9 +231,6 @@ public class Window extends Application {
         return currentMapNumber;
     }
 
-
-
-    // Helper method to load images with error handling
     private Image loadImage(String path) {
         try {
             return new Image(getClass().getResourceAsStream(path));

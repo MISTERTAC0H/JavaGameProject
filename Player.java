@@ -112,12 +112,16 @@ public class Player {
         int tileUnderPlayer = tileMap.getTileAtPosition(x + width / 2, y + height / 2);
         // turn map normal world
         if (tileUnderPlayer == 4) {
-            System.out.println("Player touched tile 4 — triggering map change!");
-            window.changeMap(window.currentMapNumber = 2);
+            System.out.println("tile 4 — map change!");
+            //window.fadeBlack();
+            //window.changeMap(window.currentMapNumber = 2);
+            window.transitionMap(2);
         // turn map DungeonA1
         } else if (tileUnderPlayer == 6) {
-            System.out.println("Player touched tile 6 — triggering map change!");
-            window.changeMap(window.currentMapNumber = 1);
+            System.out.println("tile 6 — map change!");
+            //window.fadeBlack();
+            //window.changeMap(window.currentMapNumber = 1);
+            window.transitionMap(1);
         }
 
     }
