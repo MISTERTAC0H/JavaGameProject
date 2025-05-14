@@ -33,7 +33,7 @@ public class Window extends Application {
         tileMap = new TileMap(TileMap.mapChange(currentMapNumber), tileSize);
         tileMap.setSolidTiles(2, 3);
         
-        Image playerImage = loadImage("Cat.png");
+        Image playerImage = loadImage("guy_right.png");
         // image error
         if (playerImage == null) {
             System.err.println("Failed to load player image!");

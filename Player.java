@@ -12,8 +12,8 @@ public class Player {
         throw new IllegalArgumentException("Sprite image and Window cannot be null");
     }
     this.sprite = sprite;
-    this.width = sprite.getWidth();
-    this.height = sprite.getHeight();
+    this.width = sprite.getWidth() * 1.55;
+    this.height = sprite.getHeight() * 1.55;
     this.x = x;
     this.y = y;
     this.window = window;
