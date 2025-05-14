@@ -27,8 +27,41 @@ TO DO LIST
 - enter and exit for DungeonA1
 make it so that when you enter a dungeon you enter where the exit is and exit where the enterance is
 animate player
-make entity class
-    weapons, tools, items
-make health and stats for player
-item bar
-health bar
+- fade to black/ unfade
+
+make classes
+Enemy
+    utilize parts of player
+    wolf
+    skeleton
+    goblin
+    zombie
+    kobold
+    ogre
+    oni
+    ghost
+    demon
+    spider
+HUD
+    hotbar
+    health bar
+    minimap
+Entity
+    weapons
+        swords
+            onehanded
+            twohanded
+        knives
+        bow
+        shild
+        mace
+        axe
+    torch
+    rope
+    fire starter
+Menu
+    exit
+    if fullscreen minimize and if minimized fullscreen
+    Options
+    
+
