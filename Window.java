@@ -33,14 +33,17 @@ public class Window extends Application {
         tileMap = new TileMap(TileMap.mapChange(currentMapNumber), tileSize);
         tileMap.setSolidTiles(2, 3);
         
-        Image playerImage = loadImage("guy_right.png");
+        Image idleRight = loadImage("guy_right.png");
+        Image walkRight1 = loadImage("guy_right_walk_1.png");
+        Image walkRight2 = loadImage("guy_right_walk_2.png");
+        Image[] walkRightFrames = {walkRight1, walkRight2};
         // image error
-        if (playerImage == null) {
+        if (idleRight == null || walkRight1 == null || walkRight2 == null) {
             System.err.println("Failed to load player image!");
             return;
         }
+        player = new Player(idleRight, walkRightFrames, tileSize * 5, tileSize * 5, this);
 
-        player = new Player(playerImage, tileSize * 5, tileSize * 5, this);
 
         canvas = new Canvas(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -120,6 +123,8 @@ public class Window extends Application {
                         cameraY = player.getY() - canvas.getHeight() / 2;
                     }
                 }
+                // animation move right
+                player.update(keyPressed[3]);
 
                 // Clear and redraw everything
                 gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());

@@ -1,25 +1,29 @@
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import java.util.*;
 
 public class Player {
-    private Image sprite;
+    private Image idleRight;  // guy_right.png
+    private Image[] walkRightFrames;  // [guy_right_moving_1.png, guy_right_moving_2.png]
+    private Image currentFrame;
     private double x, y;
     private double width, height;
     private Window window;
+    private boolean movingRight = false;
+    private int currentFrameIndex = 0;
+    private long lastFrameTime = 0;
+    private static final long FRAME_DELAY = 200; // milliseconds between frames
 
-    public Player(Image sprite, double x, double y, Window window) {
-    if (sprite == null || window == null) {
-        throw new IllegalArgumentException("Sprite image and Window cannot be null");
+    public Player(Image idleRight, Image[] walkRightFrames, double x, double y, Window window) {
+        this.idleRight = idleRight;
+        this.walkRightFrames = walkRightFrames;
+        this.currentFrame = idleRight;
+        this.width = idleRight.getWidth() * 1.5;
+        this.height = idleRight.getHeight() * 1.5;
+        this.x = x;
+        this.y = y;
+        this.window = window;
     }
-    this.sprite = sprite;
-    this.width = sprite.getWidth() * 1.55;
-    this.height = sprite.getHeight() * 1.55;
-    this.x = x;
-    this.y = y;
-    this.window = window;
-
-    System.out.println("Player created with dimensions: " + width + "x" + height);
-}
 
 
     public void setX(double x) {
@@ -126,9 +130,29 @@ public class Player {
 
     }
 
+    public void update(boolean isMovingRight) {
+        long currentTime = System.currentTimeMillis();
+        
+        if (isMovingRight) {
+            // Only animate if enough time has passed
+            if (currentTime - lastFrameTime > FRAME_DELAY) {
+                currentFrameIndex = (currentFrameIndex + 1) % walkRightFrames.length;
+                currentFrame = walkRightFrames[currentFrameIndex];
+                lastFrameTime = currentTime;
+            }
+            movingRight = true;
+        } else if (movingRight) {
+            // Just stopped moving right - return to idle
+            currentFrame = idleRight;
+            movingRight = false;
+            currentFrameIndex = 0;
+        }
+    }
+
     public void draw(GraphicsContext gc, double screenX, double screenY) {
-        if (gc == null || sprite == null) return;
-        gc.drawImage(sprite, screenX, screenY, width, height);
+        if (gc != null && currentFrame != null) {
+            gc.drawImage(currentFrame, screenX, screenY, width, height);
+        }
     }
 
     public double getX() {
