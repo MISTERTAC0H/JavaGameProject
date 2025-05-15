@@ -6,9 +6,11 @@ public class Player {
     private Image idleRight;  // guy_right.png
     private Image idleLeft;  // guy_left.png
     private Image idleFront; // guy_front.png
+    private Image idleBack; // guy_back.png
     private Image[] walkRightFrames;  // [guy_right_walk_1.png, guy_right_walk_2.png]
     private Image[] walkLeftFrames;  // [guy_left_walk_1.png, guy_left_walk_2.png]
-    private Image[] walkFrontFrames;  // [guy_front_walk_1.png, guy_left_walk_2.png]
+    private Image[] walkFrontFrames;  // [guy_front_walk_1.png, guy_front_walk_2.png]
+    private Image[] walkBackFrames;  // [guy_back_walk_1.png, guy_back_walk_2.png]
     private Image currentFrame;
     private double x, y;
     private double width, height;
@@ -16,17 +18,20 @@ public class Player {
     private boolean movingRight = false;
     private boolean movingLeft = false;
     private boolean movingFront = false;
+    private boolean movingBack = false;
     private int currentFrameIndex = 0;
     private long lastFrameTime = 0;
     private static final long FRAME_DELAY = 200; // milliseconds between frames
 
-    public Player(Image idleRight, Image[] walkRightFrames,Image idleLeft, Image[] walkLeftFrames, Image idleFront, Image[] walkFrontFrames, double x, double y, Window window) {
+    public Player(Image idleRight, Image[] walkRightFrames,Image idleLeft, Image[] walkLeftFrames, Image idleFront, Image[] walkFrontFrames, Image idleBack, Image[] walkBackFrames, double x, double y, Window window) {
         this.idleRight = idleRight;
         this.walkRightFrames = walkRightFrames;
         this.idleLeft = idleLeft;
         this.walkLeftFrames = walkLeftFrames;
         this.idleFront = idleFront;
         this.walkFrontFrames = walkFrontFrames;
+        this.idleBack = idleFront;
+        this.walkBackFrames = walkFrontFrames;
         this.currentFrame = idleRight;
         this.width = idleRight.getWidth() * 1.5;
         this.height = idleRight.getHeight() * 1.5;
@@ -140,7 +145,7 @@ public class Player {
 
     }
 
-    public void update(boolean isMovingRight, boolean isMovingLeft, boolean isMovingFront) {
+    public void update(boolean isMovingRight, boolean isMovingLeft, boolean isMovingFront, boolean isMovingBack) {
         long currentTime = System.currentTimeMillis();
         // move right
         if (isMovingRight) {
@@ -181,8 +186,21 @@ public class Player {
             movingFront = true;
         } else if (movingFront) {
             // Just stopped moving right - return to idle
-            currentFrame = idleLeft;
+            currentFrame = idleFront;
             movingFront = false;
+            currentFrameIndex = 0;
+        } else if (isMovingBack) {
+            // Only animate if enough time has passed
+            if (currentTime - lastFrameTime > FRAME_DELAY) {
+                currentFrameIndex = (currentFrameIndex + 1) % walkBackFrames.length;
+                currentFrame = walkFrontFrames[currentFrameIndex];
+                lastFrameTime = currentTime;
+            }
+            movingBack = true;
+        } else if (movingBack) {
+            // Just stopped moving right - return to idle
+            currentFrame = idleBack;
+            movingBack= false;
             currentFrameIndex = 0;
         }
     }

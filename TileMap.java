@@ -34,14 +34,14 @@ public class TileMap {
     switch (mapNumber) {
         case 1:
             // return basePath + "DungeonA1.txt";
-            return "world.txt";
+            return "maps/world.txt";
         case 2:
             // return basePath + "DungeonA1.txt";
-            return "DungeonA1.txt";
+            return "maps/DungeonA1.txt";
         default:
             // Return a default map or handle invalid input
             // return basePath + "world.txt";
-            return "world.txt";
+            return "maps/world.txt";
     }
 }
 
@@ -81,15 +81,15 @@ public class TileMap {
     private void loadTileImages() {
         tileImages = new Image[7];
         // walk on 
-        tileImages[0] = new Image(getClass().getResourceAsStream("Grass.png")); // Grass
-        tileImages[1] = new Image(getClass().getResourceAsStream("GrassWithGrass.png")); // Grass With Grass
-        tileImages[5] = new Image(getClass().getResourceAsStream("RockFloor.png")); // Rock floor
-        tileImages[4] = new Image(getClass().getResourceAsStream("DungeonEnterance.png")); // Dungeon Enterance
-        tileImages[5] = new Image(getClass().getResourceAsStream("RockFloor.png")); // Rock floor
-        tileImages[6] = new Image(getClass().getResourceAsStream("DungeonExit.png")); // Dungeon Enterance
+        tileImages[0] = new Image(getClass().getResourceAsStream("resources/Grass.png")); // Grass
+        tileImages[1] = new Image(getClass().getResourceAsStream("resources/GrassWithGrass.png")); // Grass With Grass
+        tileImages[5] = new Image(getClass().getResourceAsStream("resources/RockFloor.png")); // Rock floor
+        tileImages[4] = new Image(getClass().getResourceAsStream("resources/DungeonEnterance.png")); // Dungeon Enterance
+        tileImages[5] = new Image(getClass().getResourceAsStream("resources/RockFloor.png")); // Rock floor
+        tileImages[6] = new Image(getClass().getResourceAsStream("resources/DungeonExit.png")); // Dungeon Enterance
         // cant walk on
-        tileImages[2] = new Image(getClass().getResourceAsStream("CobbleStone.png")); // Cobblestone
-        tileImages[3] = new Image(getClass().getResourceAsStream("Tree.png")); // Tree
+        tileImages[2] = new Image(getClass().getResourceAsStream("resources/CobbleStone.png")); // Cobblestone
+        tileImages[3] = new Image(getClass().getResourceAsStream("resources/Tree.png")); // Tree
     }
 
     public void draw(GraphicsContext gc, double cameraX, double cameraY, double canvasWidth, double canvasHeight) {

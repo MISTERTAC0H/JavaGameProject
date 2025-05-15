@@ -22,9 +22,8 @@ public class Window extends Application {
     private double fadeOpacity = 0.0;
     private boolean isFading = false;
     private boolean isUnfading = false;
-    private static final double FADE_SPEED = 0.004; // Adjust speed as needed
+    private static final double FADE_SPEED = 0.003; // Adjust speed as needed
     private boolean fadeComplete = false;
-    
 
     @Override
     public void start(Stage primaryStage) {
@@ -34,25 +33,29 @@ public class Window extends Application {
         tileMap.setSolidTiles(2, 3);
 
         // Player animations
-        Image idleRight = loadImage("guy_right.png");
-        Image walkRight1 = loadImage("guy_right_walk_1.png");
-        Image walkRight2 = loadImage("guy_right_walk_2.png");
-        Image idleLeft = loadImage("guy_left.png");
-        Image walkLeft1 = loadImage("guy_left_walk_1.png");
-        Image walkLeft2 = loadImage("guy_left_walk_2.png");
-        Image idleFront = loadImage("guy_front.png");
-        Image walkFront1 = loadImage("guy_front_walk_1.png");
-        Image walkFront2 = loadImage("guy_front_walk_2.png");
+        Image idleRight = loadImage("resources/guy_right.png");
+        Image walkRight1 = loadImage("resources/guy_right_walk_1.png");
+        Image walkRight2 = loadImage("resources/guy_right_walk_2.png");
+        Image idleLeft = loadImage("resources/guy_left.png");
+        Image walkLeft1 = loadImage("resources/guy_left_walk_1.png");
+        Image walkLeft2 = loadImage("resources/guy_left_walk_2.png");
+        Image idleFront = loadImage("resources/guy_front.png");
+        Image walkFront1 = loadImage("resources/guy_front_walk_1.png");
+        Image walkFront2 = loadImage("resources/guy_front_walk_2.png");
+        Image idleBack = loadImage("resources/guy_back.png");
+        Image walkBack1 = loadImage("resources/guy_back_walk_1.png");
+        Image walkBack2 = loadImage("resources/guy_back_walk_2.png");
         
         Image[] walkRightFrames = {walkRight1, walkRight2};
         Image[] walkLeftFrames = {walkLeft1, walkLeft2};
         Image[] walkFrontFrames = {walkFront1, walkFront2};
+        Image[] walkBackFrames = {walkBack1, walkBack2};
         // image error
-        if (idleRight == null || walkRight1 == null || walkRight2 == null || idleLeft == null || walkLeft1 == null || walkLeft2 == null ||  idleFront == null || walkFront1 == null || walkFront2 == null) {
+        if (idleRight == null || walkRight1 == null || walkRight2 == null || idleLeft == null || walkLeft1 == null || walkLeft2 == null ||  idleFront == null || walkFront1 == null || walkFront2 == null || idleBack == null || walkBack1 == null || walkBack2 == null) {
             System.err.println("Failed to load player image!");
             return;
         }
-        player = new Player(idleRight, walkRightFrames, idleLeft, walkLeftFrames, idleFront, walkFrontFrames, tileSize * 5, tileSize * 5, this);
+        player = new Player(idleRight, walkRightFrames, idleLeft, walkLeftFrames, idleFront, walkFrontFrames, idleBack, walkBackFrames, tileSize * 5, tileSize * 5, this);
 
 
         canvas = new Canvas(DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -134,7 +137,7 @@ public class Window extends Application {
                     }
                 }
                 // animation move right
-                player.update(keyPressed[3], keyPressed[1], keyPressed[2]);
+                player.update(keyPressed[3], keyPressed[1], keyPressed[2], keyPressed[0]);
 
                 // Clear and redraw everything
                 gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -176,7 +179,7 @@ public class Window extends Application {
     // Only start transition if not already fading
     if (!isFading && !isUnfading) {
         fadeBlack();
-        
+
         new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -228,12 +231,12 @@ public class Window extends Application {
 
     public boolean isFadeComplete() {
     // Only return true once when the fade completes
-    if (fadeComplete) {
-        fadeComplete = false;  // Reset the flag
-        return true;
+        if (fadeComplete) {
+            fadeComplete = false;  // Reset the flag
+            return true;
+        }
+        return false;
     }
-    return false;
-}
 
     public void setCurrentMapNumber(int newNumber) {
         this.currentMapNumber = newNumber;
