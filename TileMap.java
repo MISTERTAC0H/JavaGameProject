@@ -7,10 +7,18 @@ public class TileMap {
     private int tileSize;
     private int rows, cols;
     private Image[] tileImages;
-
     private String currentMapPath;
-
     private Window window;
+    private Image startButton;
+    private Image startButtonHover;
+    private Image exitButton;
+    private Image exitButtonHover;
+    private boolean isStartHovered = false;
+    private boolean isExitHovered = false;
+    private double startButtonX, startButtonY;
+    private double exitButtonX, exitButtonY;
+    private double buttonWidth = 200;
+    private double buttonHeight = 100;
 
     public TileMap(Window window) {
         this.window = window;
@@ -28,26 +36,28 @@ public class TileMap {
     public static String mapChange(int mapNumber) {
     // Define a base path if needed (adjust according to your project structure)
     //String basePath = "maps/"; // Example: "maps/" or "" if files are in root
-    if (mapNumber < 1) {
-            mapNumber = 1;
-    }
-    switch (mapNumber) {
-        case 1:
-            // return basePath + "DungeonA1.txt";
-            return "maps/world.txt";
-        case 2:
-            // return basePath + "DungeonA1.txt";
-            return "maps/DungeonA1.txt";
-        default:
-            // Return a default map or handle invalid input
-            // return basePath + "world.txt";
-            return "maps/world.txt";
-    }
+        if (mapNumber < 0) {
+                mapNumber = 1;
+        }
+        switch (mapNumber) {
+            case 0:
+                // return basePath + "DungeonA1.txt";
+                return "maps/MainMenu.txt";
+            case 1:
+                // return basePath + "DungeonA1.txt";
+                return "maps/world.txt";
+            case 2:
+                // return basePath + "DungeonA1.txt";
+                return "maps/DungeonA1.txt";
+            default:
+                // Return a default map or handle invalid input
+                // return basePath + "world.txt";
+                return "maps/world.txt";
+        }
 }
 
-    public String getCurrentMapPath() {
-        return currentMapPath;
-    }
+
+    public String getCurrentMapPath() { return currentMapPath; }
 
     private void loadTileMap(String path) {
         try (Scanner scanner = new Scanner(getClass().getResourceAsStream(path))) {
@@ -111,39 +121,27 @@ public class TileMap {
     }
 
     public int getTileAtPosition(double worldX, double worldY) {
-    int tileSize = getTileSize();
-    int col = (int)(worldX / tileSize);
-    int row = (int)(worldY / tileSize);
-    
-    if (row < 0 || row >= rows || col < 0 || col >= cols) {
-        return -1; // Out of bounds
+        int tileSize = getTileSize();
+        int col = (int)(worldX / tileSize);
+        int row = (int)(worldY / tileSize);
+
+        if (row < 0 || row >= rows || col < 0 || col >= cols) {
+            return -1; // Out of bounds
+        }
+        return tiles[row][col];
     }
-    return tiles[row][col];
-}
 
 
     public boolean isSolid(int row, int col) {
-    if (row < 0 || row >= rows || col < 0 || col >= cols) {
-        return true;
+        if (row < 0 || row >= rows || col < 0 || col >= cols) {
+            return true;
+        }
+        return solidTiles.contains(tiles[row][col]);
     }
-    return solidTiles.contains(tiles[row][col]);
-}
 
     private final Set<Integer> solidTiles = new HashSet<>();
-
-    public void setSolidTiles(Integer... tileIds) {
-        solidTiles.addAll(Arrays.asList(tileIds));
-    }
-
-    public int getWidth() {
-        return cols * tileSize;
-    }
-
-    public int getHeight() {
-        return rows * tileSize;
-    }
-
-    public int getTileSize() {
-        return tileSize;
-    }
+    public void setSolidTiles(Integer... tileIds) { solidTiles.addAll(Arrays.asList(tileIds)); }
+    public int getWidth() { return cols * tileSize; }
+    public int getHeight() { return rows * tileSize; }
+    public int getTileSize() { return tileSize; }
 }

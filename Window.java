@@ -78,13 +78,21 @@ public class Window extends Application {
             cameraY = Math.max(0, Math.min(cameraY, tileMap.getHeight() - newVal.doubleValue()));
         });
 
-        // Key event handlers
-        scene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.W) keyPressed[0] = true;
-            if (event.getCode() == KeyCode.A) keyPressed[1] = true;
-            if (event.getCode() == KeyCode.S) keyPressed[2] = true;
-            if (event.getCode() == KeyCode.D) keyPressed[3] = true;
-        });
+        // for the main menu so that the character doesnt move
+        if (currentMapNumber == 0) {scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.W) keyPressed[0] = false;
+            if (event.getCode() == KeyCode.A) keyPressed[1] = false;
+            if (event.getCode() == KeyCode.S) keyPressed[2] = false;
+            if (event.getCode() == KeyCode.D) keyPressed[3] = false;
+        });} else {
+            // Key event handlers
+            scene.setOnKeyPressed(event -> {
+                if (event.getCode() == KeyCode.W) keyPressed[0] = true;
+                if (event.getCode() == KeyCode.A) keyPressed[1] = true;
+                if (event.getCode() == KeyCode.S) keyPressed[2] = true;
+                if (event.getCode() == KeyCode.D) keyPressed[3] = true;
+            });
+        }
 
         scene.setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.W) keyPressed[0] = false;
@@ -101,7 +109,7 @@ public class Window extends Application {
                 if (keyPressed[1]) dx = -playerSpeed;
                 if (keyPressed[2]) dy = playerSpeed;
                 if (keyPressed[3]) dx = playerSpeed;
-                
+
                 if (dx != 0 || dy != 0) {
                     player.tryMove(dx, dy, tileMap);
                 }
@@ -109,7 +117,7 @@ public class Window extends Application {
                 // Update camera position based on player
                 cameraX = player.getX() - canvas.getWidth() / 2;
                 cameraY = player.getY() - canvas.getHeight() / 2;
-                
+
                 // Ensure camera stays within map bounds
                 cameraX = Math.max(0, Math.min(cameraX, tileMap.getWidth() - canvas.getWidth()));
                 cameraY = Math.max(0, Math.min(cameraY, tileMap.getHeight() - canvas.getHeight()));
@@ -117,7 +125,7 @@ public class Window extends Application {
                 int tileSize = tileMap.getTileSize();
                 int centerCol = (int)((player.getX() + player.getWidth()/2) / tileSize);
                 int centerRow = (int)((player.getY() + player.getHeight()/2) / tileSize);
-                
+
                 if (tileMap.getTileAtPosition(centerRow, centerCol) == 5) {
                     // Transition to next map
                     currentMapNumber++;
@@ -126,11 +134,11 @@ public class Window extends Application {
                         // Create new tilemap
                         tileMap = new TileMap(newMapPath, tileSize);
                         tileMap.setSolidTiles(2, 3);
-                        
+
                         // Reset player position
                         player.setX(tileSize * 2);
                         player.setY(tileSize * 2);
-                        
+
                         // Reset camera
                         cameraX = player.getX() - canvas.getWidth() / 2;
                         cameraY = player.getY() - canvas.getHeight() / 2;
@@ -149,7 +157,7 @@ public class Window extends Application {
                     gc.setFill(javafx.scene.paint.Color.BLACK);
                     gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
                     gc.setGlobalAlpha(1.0);
-                    
+
                     // Update fade opacity
                     if (isFading) {
                         fadeOpacity += FADE_SPEED;
