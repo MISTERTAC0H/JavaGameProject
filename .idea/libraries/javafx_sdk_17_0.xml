@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="javafx-sdk-17.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Downloads/openjfx-17.0.15_windows-x64_bin-sdk.zip!/javafx-sdk-17.0.15" />
+      <root url="file://$USER_HOME$/Downloads/javafx-sdk-17.0.15/lib" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$USER_HOME$/Downloads/javafx-sdk-17.0.15" />
+    </SOURCES>
+    <jarDirectory url="file://$USER_HOME$/Downloads/javafx-sdk-17.0.15/lib" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/Downloads/javafx-sdk-17.0.15" recursive="false" type="SOURCES" />
+  </library>
+</component>

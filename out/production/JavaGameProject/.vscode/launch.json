@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "Main",
+      "projectName": "JavaGameProject_9eecd516"
+    },
+    {
+      "type": "java",
+      "name": "Launch Window",
+      "request": "launch",
+      "mainClass": "Window",
+      "vmArgs": "--module-path C:/Users/evang/OneDrive/Desktop/javafx-sdk-17.0.15/lib --add-modules javafx.controls"
+    }
+  ]
+}
