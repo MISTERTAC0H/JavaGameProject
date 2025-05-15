@@ -22,7 +22,7 @@ public class Window extends Application {
     private double fadeOpacity = 0.0;
     private boolean isFading = false;
     private boolean isUnfading = false;
-    private static final double FADE_SPEED = 0.003; // Adjust speed as needed
+    private static final double FADE_SPEED = 0.005; // Adjust speed as needed
     private boolean fadeComplete = false;
 
     @Override
