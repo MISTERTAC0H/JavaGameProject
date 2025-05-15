@@ -30,8 +30,8 @@ public class Player {
         this.walkLeftFrames = walkLeftFrames;
         this.idleFront = idleFront;
         this.walkFrontFrames = walkFrontFrames;
-        this.idleBack = idleFront;
-        this.walkBackFrames = walkFrontFrames;
+        this.idleBack = idleBack;
+        this.walkBackFrames = walkBackFrames;
         this.currentFrame = idleRight;
         this.width = idleRight.getWidth() * 1.5;
         this.height = idleRight.getHeight() * 1.5;
@@ -189,16 +189,17 @@ public class Player {
             currentFrame = idleFront;
             movingFront = false;
             currentFrameIndex = 0;
+            // move back
         } else if (isMovingBack) {
             // Only animate if enough time has passed
             if (currentTime - lastFrameTime > FRAME_DELAY) {
                 currentFrameIndex = (currentFrameIndex + 1) % walkBackFrames.length;
-                currentFrame = walkFrontFrames[currentFrameIndex];
+                currentFrame = walkBackFrames[currentFrameIndex];
                 lastFrameTime = currentTime;
             }
             movingBack = true;
         } else if (movingBack) {
-            // Just stopped moving right - return to idle
+            // Just stopped moving back - return to idle
             currentFrame = idleBack;
             movingBack= false;
             currentFrameIndex = 0;
