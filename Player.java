@@ -5,23 +5,28 @@ import java.util.*;
 public class Player {
     private Image idleRight;  // guy_right.png
     private Image idleLeft;  // guy_left.png
-    private Image[] walkRightFrames;  // [guy_right_moving_1.png, guy_right_moving_2.png]
-    private Image[] walkLeftFrames;  // [guy_left_moving_1.png, guy_left_moving_2.png]
+    private Image idleFront; // guy_front.png
+    private Image[] walkRightFrames;  // [guy_right_walk_1.png, guy_right_walk_2.png]
+    private Image[] walkLeftFrames;  // [guy_left_walk_1.png, guy_left_walk_2.png]
+    private Image[] walkFrontFrames;  // [guy_front_walk_1.png, guy_left_walk_2.png]
     private Image currentFrame;
     private double x, y;
     private double width, height;
     private Window window;
     private boolean movingRight = false;
     private boolean movingLeft = false;
+    private boolean movingFront = false;
     private int currentFrameIndex = 0;
     private long lastFrameTime = 0;
     private static final long FRAME_DELAY = 200; // milliseconds between frames
 
-    public Player(Image idleRight, Image[] walkRightFrames,Image idleLeft, Image[] walkLeftFrames, double x, double y, Window window) {
+    public Player(Image idleRight, Image[] walkRightFrames,Image idleLeft, Image[] walkLeftFrames, Image idleFront, Image[] walkFrontFrames, double x, double y, Window window) {
         this.idleRight = idleRight;
         this.walkRightFrames = walkRightFrames;
         this.idleLeft = idleLeft;
         this.walkLeftFrames = walkLeftFrames;
+        this.idleFront = idleFront;
+        this.walkFrontFrames = walkFrontFrames;
         this.currentFrame = idleRight;
         this.width = idleRight.getWidth() * 1.5;
         this.height = idleRight.getHeight() * 1.5;
@@ -135,9 +140,9 @@ public class Player {
 
     }
 
-    public void update(boolean isMovingRight, boolean isMovingLeft) {
+    public void update(boolean isMovingRight, boolean isMovingLeft, boolean isMovingFront) {
         long currentTime = System.currentTimeMillis();
-        
+        // move right
         if (isMovingRight) {
             // Only animate if enough time has passed
             if (currentTime - lastFrameTime > FRAME_DELAY) {
@@ -151,6 +156,7 @@ public class Player {
             currentFrame = idleRight;
             movingRight = false;
             currentFrameIndex = 0;
+            // move left
         } else if (isMovingLeft) {
             // Only animate if enough time has passed
             if (currentTime - lastFrameTime > FRAME_DELAY) {
@@ -163,6 +169,20 @@ public class Player {
             // Just stopped moving right - return to idle
             currentFrame = idleLeft;
             movingLeft = false;
+            currentFrameIndex = 0;
+            // move front
+        } else if (isMovingFront) {
+            // Only animate if enough time has passed
+            if (currentTime - lastFrameTime > FRAME_DELAY) {
+                currentFrameIndex = (currentFrameIndex + 1) % walkFrontFrames.length;
+                currentFrame = walkFrontFrames[currentFrameIndex];
+                lastFrameTime = currentTime;
+            }
+            movingFront = true;
+        } else if (movingFront) {
+            // Just stopped moving right - return to idle
+            currentFrame = idleLeft;
+            movingFront = false;
             currentFrameIndex = 0;
         }
     }
