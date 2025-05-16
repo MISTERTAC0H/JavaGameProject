@@ -4,6 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/*
+
+
+FILE NOT CURRENTLY IN USE FOR THE ACTUAL GAME
+
+
+ */
+
 public class World {
     private int[][] tiles;
     private int tileSize;

@@ -36,6 +36,17 @@ public class Window extends Application {
     private double buttonHeight = 150;
     private double resumeButtonX, resumeButtonY;
     private double exitButtonX, exitButtonY;
+    // Main menu variables
+    private boolean inMainMenu = true;
+    private Image startButton, startButtonHover;
+    private Image optionsButton, optionsButtonHover;
+    private Image menuExitButton, menuExitButtonHover; // Renamed to avoid conflict
+    private boolean isStartHovered = false;
+    private boolean isOptionsHovered = false;
+    private boolean isMenuExitHovered = false; // Renamed
+    private double menuButtonWidth = 150;
+    private double menuButtonHeight = 150;
+    private double menuButtonSpacing = 20;
 
     @Override
     public void start(Stage primaryStage) {
@@ -93,9 +104,11 @@ public class Window extends Application {
         // for the main menu so that the character doesnt move
         scene.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
-                gamePaused = !gamePaused;
+                if (!inMainMenu) { // Only allow pausing when in game
+                    gamePaused = !gamePaused;
+                }
             }
-            if (!gamePaused) {
+            if (!inMainMenu && !gamePaused) { // Only process movement in game when not paused
                 if (event.getCode() == KeyCode.W) keyPressed[0] = true;
                 if (event.getCode() == KeyCode.A) keyPressed[1] = true;
                 if (event.getCode() == KeyCode.S) keyPressed[2] = true;
@@ -111,37 +124,117 @@ public class Window extends Application {
         });
 
         // Add mouse movement handler for button hover effects
+        // Replace your existing mouse handlers with:
+        // Mouse movement handler
         scene.setOnMouseMoved(event -> {
-            if (gamePaused) {
+            if (inMainMenu) {
                 double mouseX = event.getX();
                 double mouseY = event.getY();
 
-                // Check resume button hover
+                // Calculate total width of all buttons with spacing
+                double totalWidth = (menuButtonWidth * 3) + (menuButtonSpacing * 2);
+                double startX = (canvas.getWidth() - totalWidth) / 2;
+                double centerY = canvas.getHeight() / 2 - menuButtonHeight/2;
+
+                // Start button hover
+                isStartHovered = mouseX >= startX &&
+                        mouseX <= startX + menuButtonWidth &&
+                        mouseY >= centerY &&
+                        mouseY <= centerY + menuButtonHeight;
+
+                // Options button hover
+                isOptionsHovered = mouseX >= startX + menuButtonWidth + menuButtonSpacing &&
+                        mouseX <= startX + menuButtonWidth * 2 + menuButtonSpacing &&
+                        mouseY >= centerY &&
+                        mouseY <= centerY + menuButtonHeight;
+
+                // Exit button hover
+                isMenuExitHovered = mouseX >= startX + (menuButtonWidth + menuButtonSpacing) * 2 &&
+                        mouseX <= startX + (menuButtonWidth + menuButtonSpacing) * 2 + menuButtonWidth &&
+                        mouseY >= centerY &&
+                        mouseY <= centerY + menuButtonHeight;
+            } else if (gamePaused) {
+                // Update pause menu button positions
+                double centerX = canvas.getWidth() / 2;
+                double centerY = canvas.getHeight() / 2;
+
+                resumeButtonX = centerX - buttonWidth - 20;
+                resumeButtonY = centerY - buttonHeight/2;
+                exitButtonX = centerX + 20;
+                exitButtonY = centerY - buttonHeight/2;
+
+                // Update hover states for pause menu
+                double mouseX = event.getX();
+                double mouseY = event.getY();
+
                 isResumeHovered = mouseX >= resumeButtonX && mouseX <= resumeButtonX + buttonWidth &&
                         mouseY >= resumeButtonY && mouseY <= resumeButtonY + buttonHeight;
 
-                // Check exit button hover
                 isExitHovered = mouseX >= exitButtonX && mouseX <= exitButtonX + buttonWidth &&
                         mouseY >= exitButtonY && mouseY <= exitButtonY + buttonHeight;
             }
         });
 
-        // Add mouse click handler for button actions
+// Mouse click handler
         scene.setOnMouseClicked(event -> {
-            if (gamePaused) {
+            if (inMainMenu) {
                 double mouseX = event.getX();
                 double mouseY = event.getY();
 
-                // Resume button click
+                // Calculate total width of all buttons with spacing
+                double totalWidth = (menuButtonWidth * 3) + (menuButtonSpacing * 2);
+                double startX = (canvas.getWidth() - totalWidth) / 2;
+                double centerY = canvas.getHeight() / 2 - menuButtonHeight/2;
+
+                // Start button click
+                if (mouseX >= startX &&
+                        mouseX <= startX + menuButtonWidth &&
+                        mouseY >= centerY &&
+                        mouseY <= centerY + menuButtonHeight) {
+                    inMainMenu = false;
+                    currentMapNumber = 1;
+                    tileMap = new TileMap(TileMap.mapChange(currentMapNumber), tileMap.getTileSize());
+                    tileMap.setSolidTiles(2, 3);
+                    player.setX(tileMap.getTileSize() * 5);
+                    player.setY(tileMap.getTileSize() * 5);
+                }
+
+                // Options button click
+                if (mouseX >= startX + menuButtonWidth + menuButtonSpacing &&
+                        mouseX <= startX + menuButtonWidth * 2 + menuButtonSpacing &&
+                        mouseY >= centerY &&
+                        mouseY <= centerY + menuButtonHeight) {
+                    System.out.println("Options clicked");
+                }
+
+                // Exit button click
+                if (mouseX >= startX + (menuButtonWidth + menuButtonSpacing) * 2 &&
+                        mouseX <= startX + (menuButtonWidth + menuButtonSpacing) * 2 + menuButtonWidth &&
+                        mouseY >= centerY &&
+                        mouseY <= centerY + menuButtonHeight) {
+                    primaryStage.close();
+                }
+            } else if (gamePaused) {
+                // Pause menu button clicks
+                double mouseX = event.getX();
+                double mouseY = event.getY();
+
                 if (mouseX >= resumeButtonX && mouseX <= resumeButtonX + buttonWidth &&
                         mouseY >= resumeButtonY && mouseY <= resumeButtonY + buttonHeight) {
                     gamePaused = false;
                 }
 
-                // Exit button click
                 if (mouseX >= exitButtonX && mouseX <= exitButtonX + buttonWidth &&
                         mouseY >= exitButtonY && mouseY <= exitButtonY + buttonHeight) {
-                    primaryStage.close();
+                    // Changed from primaryStage.close() to return to main menu
+                    gamePaused = false;
+                    inMainMenu = true;
+
+                    // Reset player position for when they return to game
+                    if (tileMap != null) {
+                        player.setX(tileMap.getTileSize() * 5);
+                        player.setY(tileMap.getTileSize() * 5);
+                    }
                 }
             }
         });
@@ -191,13 +284,24 @@ public class Window extends Application {
                 }
                 // animation movements
                 player.update(keyPressed[3], keyPressed[1], keyPressed[2], keyPressed[0]);
-                loadMenuImages();
+                loadPauseMenuImages();
+                loadMainMenuImages();
 
                 // Clear and redraw everything
                 gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-                tileMap.draw(gc, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
-                player.draw(gc, player.getX() - cameraX, player.getY() - cameraY);
+                // main menu
+                if (inMainMenu) {
+                    drawMainMenu(gc);
+                } else {
+                    // Your existing game drawing code
+                    tileMap.draw(gc, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
+                    player.draw(gc, player.getX() - cameraX, player.getY() - cameraY);
 
+                    if (gamePaused) {
+                        drawPauseMenu(gc); // Your existing method
+                    }
+                }
+                // pause menu
                 if (gamePaused) {
                     drawPauseMenu(gc);
                 }
@@ -232,19 +336,43 @@ public class Window extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-    // press escape and pause menu will pop up with resume and exit
-    private void drawPauseMenu(GraphicsContext gc) {
-        // Draw semi-transparent overlay
-        gc.setFill(javafx.scene.paint.Color.rgb(0, 0, 0, 0.7));
+    private void loadMainMenuImages() {
+        startButton = loadImage("resources/start.png");
+        startButtonHover = loadImage("resources/start_hover.png");
+        optionsButton = loadImage("resources/options.png");
+        optionsButtonHover = loadImage("resources/options_hover.png");
+        menuExitButton = loadImage("resources/exit.png");
+        menuExitButtonHover = loadImage("resources/exit_hover.png");
+
+        // Calculate initial positions (will be updated in draw method)
+        menuButtonWidth = 150; // Slightly narrower for side-by-side
+        menuButtonHeight = 150;
+        menuButtonSpacing = 20; // Space between buttons
+    }
+    private void drawMainMenu(GraphicsContext gc) {
+        // Draw white background
+        gc.setFill(javafx.scene.paint.Color.WHITE);
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-        // Draw buttons with hover effects
-        gc.drawImage(isResumeHovered ? resumeButtonHover : resumeButton,
-                resumeButtonX, resumeButtonY, buttonWidth, buttonHeight);
-        gc.drawImage(isExitHovered ? exitButtonHover : exitButton,
-                exitButtonX, exitButtonY, buttonWidth, buttonHeight);
+        // Calculate total width of all buttons with spacing
+        double totalWidth = (menuButtonWidth * 3) + (menuButtonSpacing * 2);
+        double startX = (canvas.getWidth() - totalWidth) / 2;
+        double centerY = canvas.getHeight() / 2 - menuButtonHeight/2;
+
+        // Draw buttons side by side
+        gc.drawImage(isStartHovered ? startButtonHover : startButton,
+                startX, centerY, menuButtonWidth, menuButtonHeight);
+
+        gc.drawImage(isOptionsHovered ? optionsButtonHover : optionsButton,
+                startX + menuButtonWidth + menuButtonSpacing,
+                centerY, menuButtonWidth, menuButtonHeight);
+
+        gc.drawImage(isMenuExitHovered ? menuExitButtonHover : menuExitButton,
+                startX + (menuButtonWidth + menuButtonSpacing) * 2,
+                centerY, menuButtonWidth, menuButtonHeight);
     }
-    private void loadMenuImages() {
+    // press escape and pause menu will pop up with resume and exit
+    private void loadPauseMenuImages() {
         resumeButton = loadImage("resources/resume.png");
         resumeButtonHover = loadImage("resources/resume_hover.png");
         exitButton = loadImage("resources/exit.png");
@@ -261,6 +389,18 @@ public class Window extends Application {
         exitButtonX = centerX + 20; // 20px spacing between buttons
         exitButtonY = centerY - buttonHeight/2;
     }
+    private void drawPauseMenu(GraphicsContext gc) {
+        // Draw semi-transparent overlay
+        gc.setFill(javafx.scene.paint.Color.rgb(0, 0, 0, 0.5));
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+        // Draw buttons with hover effects
+        gc.drawImage(isResumeHovered ? resumeButtonHover : resumeButton,
+                resumeButtonX, resumeButtonY, buttonWidth, buttonHeight);
+        gc.drawImage(isExitHovered ? exitButtonHover : exitButton,
+                exitButtonX, exitButtonY, buttonWidth, buttonHeight);
+    }
+
     public void transitionMap(int newMapNumber) {
     // Only start transition if not already fading
     if (!isFading && !isUnfading) {

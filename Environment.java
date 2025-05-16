@@ -1,6 +1,14 @@
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
+/*
+
+
+FILE NOT CURRENTLY IN USE FOR THE ACTUAL GAME
+
+
+ */
+
 public class Environment {
     private double width;
     private double height;

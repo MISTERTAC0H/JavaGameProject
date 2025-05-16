@@ -5,7 +5,13 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+/*
 
+
+FILE NOT CURRENTLY IN USE FOR THE ACTUAL GAME
+
+
+ */
 public class Main extends Application {
 
     @Override
