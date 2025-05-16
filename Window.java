@@ -24,6 +24,18 @@ public class Window extends Application {
     private boolean isUnfading = false;
     private static final double FADE_SPEED = 0.005; // Adjust speed as needed
     private boolean fadeComplete = false;
+    // Add these with your other variables in Window class
+    private boolean gamePaused = false;
+    private Image resumeButton;
+    private Image resumeButtonHover;
+    private Image exitButton;
+    private Image exitButtonHover;
+    private boolean isResumeHovered = false;
+    private boolean isExitHovered = false;
+    private double buttonWidth = 150;
+    private double buttonHeight = 150;
+    private double resumeButtonX, resumeButtonY;
+    private double exitButtonX, exitButtonY;
 
     @Override
     public void start(Stage primaryStage) {
@@ -79,26 +91,59 @@ public class Window extends Application {
         });
 
         // for the main menu so that the character doesnt move
-        if (currentMapNumber == 0) {scene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.W) keyPressed[0] = false;
-            if (event.getCode() == KeyCode.A) keyPressed[1] = false;
-            if (event.getCode() == KeyCode.S) keyPressed[2] = false;
-            if (event.getCode() == KeyCode.D) keyPressed[3] = false;
-        });} else {
-            // Key event handlers
-            scene.setOnKeyPressed(event -> {
+        scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                gamePaused = !gamePaused;
+            }
+            if (!gamePaused) {
                 if (event.getCode() == KeyCode.W) keyPressed[0] = true;
                 if (event.getCode() == KeyCode.A) keyPressed[1] = true;
                 if (event.getCode() == KeyCode.S) keyPressed[2] = true;
                 if (event.getCode() == KeyCode.D) keyPressed[3] = true;
-            });
-        }
+            }
+        });
 
         scene.setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.W) keyPressed[0] = false;
             if (event.getCode() == KeyCode.A) keyPressed[1] = false;
             if (event.getCode() == KeyCode.S) keyPressed[2] = false;
             if (event.getCode() == KeyCode.D) keyPressed[3] = false;
+        });
+
+        // Add mouse movement handler for button hover effects
+        scene.setOnMouseMoved(event -> {
+            if (gamePaused) {
+                double mouseX = event.getX();
+                double mouseY = event.getY();
+
+                // Check resume button hover
+                isResumeHovered = mouseX >= resumeButtonX && mouseX <= resumeButtonX + buttonWidth &&
+                        mouseY >= resumeButtonY && mouseY <= resumeButtonY + buttonHeight;
+
+                // Check exit button hover
+                isExitHovered = mouseX >= exitButtonX && mouseX <= exitButtonX + buttonWidth &&
+                        mouseY >= exitButtonY && mouseY <= exitButtonY + buttonHeight;
+            }
+        });
+
+        // Add mouse click handler for button actions
+        scene.setOnMouseClicked(event -> {
+            if (gamePaused) {
+                double mouseX = event.getX();
+                double mouseY = event.getY();
+
+                // Resume button click
+                if (mouseX >= resumeButtonX && mouseX <= resumeButtonX + buttonWidth &&
+                        mouseY >= resumeButtonY && mouseY <= resumeButtonY + buttonHeight) {
+                    gamePaused = false;
+                }
+
+                // Exit button click
+                if (mouseX >= exitButtonX && mouseX <= exitButtonX + buttonWidth &&
+                        mouseY >= exitButtonY && mouseY <= exitButtonY + buttonHeight) {
+                    primaryStage.close();
+                }
+            }
         });
 
         new AnimationTimer() {
@@ -144,13 +189,18 @@ public class Window extends Application {
                         cameraY = player.getY() - canvas.getHeight() / 2;
                     }
                 }
-                // animation move right
+                // animation movements
                 player.update(keyPressed[3], keyPressed[1], keyPressed[2], keyPressed[0]);
+                loadMenuImages();
 
                 // Clear and redraw everything
                 gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
                 tileMap.draw(gc, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
                 player.draw(gc, player.getX() - cameraX, player.getY() - cameraY);
+
+                if (gamePaused) {
+                    drawPauseMenu(gc);
+                }
 
                 if (isFading || isUnfading) {
                     gc.setGlobalAlpha(fadeOpacity);
@@ -182,7 +232,35 @@ public class Window extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+    // press escape and pause menu will pop up with resume and exit
+    private void drawPauseMenu(GraphicsContext gc) {
+        // Draw semi-transparent overlay
+        gc.setFill(javafx.scene.paint.Color.rgb(0, 0, 0, 0.7));
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
+        // Draw buttons with hover effects
+        gc.drawImage(isResumeHovered ? resumeButtonHover : resumeButton,
+                resumeButtonX, resumeButtonY, buttonWidth, buttonHeight);
+        gc.drawImage(isExitHovered ? exitButtonHover : exitButton,
+                exitButtonX, exitButtonY, buttonWidth, buttonHeight);
+    }
+    private void loadMenuImages() {
+        resumeButton = loadImage("resources/resume.png");
+        resumeButtonHover = loadImage("resources/resume_hover.png");
+        exitButton = loadImage("resources/exit.png");
+        exitButtonHover = loadImage("resources/exit_hover.png");
+
+        // pull the current width and height of the window, buttons should adjust to be center of window
+        double centerX = canvas.getWidth() / 2;
+        double centerY = canvas.getHeight() / 2;
+
+        resumeButtonX = centerX - buttonWidth - 20; // 20px spacing between buttons
+        resumeButtonY = centerY - buttonHeight/2;
+
+        // Exit button on right side
+        exitButtonX = centerX + 20; // 20px spacing between buttons
+        exitButtonY = centerY - buttonHeight/2;
+    }
     public void transitionMap(int newMapNumber) {
     // Only start transition if not already fading
     if (!isFading && !isUnfading) {
