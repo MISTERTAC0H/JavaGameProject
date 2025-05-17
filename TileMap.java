@@ -9,16 +9,6 @@ public class TileMap {
     private Image[] tileImages;
     private String currentMapPath;
     private Window window;
-    private Image startButton;
-    private Image startButtonHover;
-    private Image exitButton;
-    private Image exitButtonHover;
-    private boolean isStartHovered = false;
-    private boolean isExitHovered = false;
-    private double startButtonX, startButtonY;
-    private double exitButtonX, exitButtonY;
-    private double buttonWidth = 200;
-    private double buttonHeight = 100;
 
     public TileMap(Window window) {
         this.window = window;
@@ -89,10 +79,11 @@ public class TileMap {
     }
 
     private void loadTileImages() {
-        tileImages = new Image[7];
+        tileImages = new Image[8];
         // walk on 
-        tileImages[0] = new Image(getClass().getResourceAsStream("resources/Grass.png")); // Grass
-        tileImages[1] = new Image(getClass().getResourceAsStream("resources/GrassWithGrass.png")); // Grass With Grass
+        tileImages[0] = new Image(getClass().getResourceAsStream("resources/GrassGPT.png")); // Grass
+        tileImages[1] = new Image(getClass().getResourceAsStream("resources/GrassWithGrass1.png")); // Grass With Grass
+        tileImages[7] = new Image(getClass().getResourceAsStream("resources/GrassWithGrass2.png")); // Grass With Grass
         tileImages[5] = new Image(getClass().getResourceAsStream("resources/RockFloor.png")); // Rock floor
         tileImages[4] = new Image(getClass().getResourceAsStream("resources/DungeonEnterance.png")); // Dungeon Enterance
         tileImages[5] = new Image(getClass().getResourceAsStream("resources/RockFloor.png")); // Rock floor
