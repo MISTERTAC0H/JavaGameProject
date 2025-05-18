@@ -2,7 +2,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import java.util.*;
 
-public class Player {
+public class Player extends Entity {
     private Image idleRight;  // guy_right.png
     private Image idleLeft;  // guy_left.png
     private Image idleFront; // guy_front.png
@@ -24,6 +24,7 @@ public class Player {
     private static final long FRAME_DELAY = 200; // milliseconds between frames
 
     public Player(Image idleRight, Image[] walkRightFrames,Image idleLeft, Image[] walkLeftFrames, Image idleFront, Image[] walkFrontFrames, Image idleBack, Image[] walkBackFrames, double x, double y, Window window) {
+        super(x, y, idleRight.getWidth() * 1.5, idleRight.getHeight() * 1.5, idleRight);
         this.idleRight = idleRight;
         this.walkRightFrames = walkRightFrames;
         this.idleLeft = idleLeft;
@@ -139,7 +140,7 @@ public class Player {
         }
 
     }
-
+    @Override
     public void update(boolean isMovingRight, boolean isMovingLeft, boolean isMovingFront, boolean isMovingBack) {
         long currentTime = System.currentTimeMillis();
         // move right
@@ -206,7 +207,6 @@ public class Player {
             gc.drawImage(currentFrame, screenX, screenY, width, height);
         }
     }
-
     public double getX() { return x; }
     public double getY() { return y; }
     public double getWidth() { return width; }
