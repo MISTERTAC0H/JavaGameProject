@@ -41,27 +41,6 @@ public class Player extends Entity {
         this.window = window;
     }
 
-
-    public void setX(double x) { this.x = x; }
-    public void setY(double y) { this.y = y; }
-
-    public void setPosition(double x, double y) {
-        setX(x);
-        setY(y);
-    }
-
-    public void setPosition(double x, double y, TileMap tileMap) {
-        if (tileMap != null) {
-            double maxX = tileMap.getWidth() - this.width;
-            double maxY = tileMap.getHeight() - this.height;
-            this.x = Math.max(0, Math.min(x, maxX));
-            this.y = Math.max(0, Math.min(y, maxY));
-        } else {
-            setX(x);
-            setY(y);
-        }
-    }
-
     public void tryMove(double dx, double dy, TileMap tileMap) {
         if (tileMap == null) return;
 
@@ -211,4 +190,23 @@ public class Player extends Entity {
     public double getY() { return y; }
     public double getWidth() { return width; }
     public double getHeight() { return height; }
+    public void setX(double x) { this.x = x; }
+    public void setY(double y) { this.y = y; }
+
+    public void setPosition(double x, double y) {
+        setX(x);
+        setY(y);
+    }
+
+    public void setPosition(double x, double y, TileMap tileMap) {
+        if (tileMap != null) {
+            double maxX = tileMap.getWidth() - this.width;
+            double maxY = tileMap.getHeight() - this.height;
+            this.x = Math.max(0, Math.min(x, maxX));
+            this.y = Math.max(0, Math.min(y, maxY));
+        } else {
+            setX(x);
+            setY(y);
+        }
+    }
 }

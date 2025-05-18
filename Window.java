@@ -27,6 +27,7 @@ public class Window extends Application {
     // Add these with your other variables in Window class
     private MainMenu mainMenu;
     private PauseMenu pauseMenu;
+    private NPC npc;
 
     @Override
     public void start(Stage primaryStage) {
@@ -60,8 +61,10 @@ public class Window extends Application {
             System.err.println("Failed to load player image!");
             return;
         }
+        // initialize player
         player = new Player(idleRight, walkRightFrames, idleLeft, walkLeftFrames, idleFront, walkFrontFrames, idleBack, walkBackFrames, tileSize * 5, tileSize * 5, this);
-
+        // initialize npc
+        npc = new NPC(tileSize * 10, tileSize * 10, tileSize, tileSize);
 
         canvas = new Canvas(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -195,7 +198,7 @@ public class Window extends Application {
                 }
                 // animation movements
                 player.update(keyPressed[3], keyPressed[1], keyPressed[2], keyPressed[0]);
-
+                npc.update(false, false, false, false);
 
                 // Clear and redraw everything
                 gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -206,6 +209,7 @@ public class Window extends Application {
                     // Your existing game drawing code
                     tileMap.draw(gc, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
                     player.draw(gc, player.getX() - cameraX, player.getY() - cameraY);
+                    npc.draw(gc, npc.getX() - cameraX, npc.getY() - cameraY);
 
                     if (pauseMenu.isPaused()) {
                         pauseMenu.draw(gc);
@@ -278,6 +282,9 @@ public class Window extends Application {
 
             player.setX(tileSize * 2);
             player.setY(tileSize * 2);
+            // In changeMap() method, right after setting player position
+            npc.setX(tileSize * 10);
+            npc.setY(tileSize * 10);
 
             // Reset camera
             cameraX = player.getX() - canvas.getWidth() / 2;
