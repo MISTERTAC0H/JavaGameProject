@@ -24,10 +24,10 @@ public class TileMap {
     }
 
     public static String mapChange(int mapNumber) {
-    // Define a base path if needed (adjust according to your project structure)
-    //String basePath = "maps/"; // Example: "maps/" or "" if files are in root
+        // Define a base path if needed (adjust according to your project structure)
+        //String basePath = "maps/"; // Example: "maps/" or "" if files are in root
         if (mapNumber < 0) {
-                mapNumber = 1;
+            mapNumber = 1;
         }
         switch (mapNumber) {
             case 0:
@@ -44,7 +44,7 @@ public class TileMap {
                 // return basePath + "world.txt";
                 return "maps/world.txt";
         }
-}
+    }
 
 
     public String getCurrentMapPath() { return currentMapPath; }
@@ -80,7 +80,7 @@ public class TileMap {
 
     private void loadTileImages() {
         tileImages = new Image[8];
-        // walk on 
+        // walk on
         tileImages[0] = new Image(getClass().getResourceAsStream("resources/GrassGPT.png")); // Grass
         tileImages[1] = new Image(getClass().getResourceAsStream("resources/GrassWithGrass1.png")); // Grass With Grass
         tileImages[7] = new Image(getClass().getResourceAsStream("resources/GrassWithGrass2.png")); // Grass With Grass

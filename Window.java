@@ -36,20 +36,11 @@ public class Window extends Application {
     private double buttonHeight = 150;
     private double resumeButtonX, resumeButtonY;
     private double exitButtonX, exitButtonY;
-    // Main menu variables
-    private boolean inMainMenu = true;
-    private Image startButton, startButtonHover;
-    private Image optionsButton, optionsButtonHover;
-    private Image menuExitButton, menuExitButtonHover; // Renamed to avoid conflict
-    private boolean isStartHovered = false;
-    private boolean isOptionsHovered = false;
-    private boolean isMenuExitHovered = false; // Renamed
-    private double menuButtonWidth = 150;
-    private double menuButtonHeight = 150;
-    private double menuButtonSpacing = 20;
+    private MainMenu mainMenu;
 
     @Override
     public void start(Stage primaryStage) {
+        mainMenu = new MainMenu();
         int tileSize = 60;
         System.out.println(currentMapNumber);
         tileMap = new TileMap(TileMap.mapChange(currentMapNumber), tileSize);
@@ -68,7 +59,7 @@ public class Window extends Application {
         Image idleBack = loadImage("resources/guy_back.png");
         Image walkBack1 = loadImage("resources/guy_back_walk_1.png");
         Image walkBack2 = loadImage("resources/guy_back_walk_2.png");
-        
+
         Image[] walkRightFrames = {walkRight1, walkRight2};
         Image[] walkLeftFrames = {walkLeft1, walkLeft2};
         Image[] walkFrontFrames = {walkFront1, walkFront2};
@@ -91,12 +82,12 @@ public class Window extends Application {
         // Make the canvas resize with the window
         canvas.widthProperty().bind(root.widthProperty());
         canvas.heightProperty().bind(root.heightProperty());
-        
+
         // Handle window resize and update camera bounds
         root.widthProperty().addListener((obs, oldVal, newVal) -> {
             cameraX = Math.max(0, Math.min(cameraX, tileMap.getWidth() - newVal.doubleValue()));
         });
-        
+
         root.heightProperty().addListener((obs, oldVal, newVal) -> {
             cameraY = Math.max(0, Math.min(cameraY, tileMap.getHeight() - newVal.doubleValue()));
         });
@@ -104,11 +95,11 @@ public class Window extends Application {
         // for the main menu so that the character doesnt move
         scene.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
-                if (!inMainMenu) { // Only allow pausing when in game
+                if (!mainMenu.isActive()) { // Only allow pausing when in game
                     gamePaused = !gamePaused;
                 }
             }
-            if (!inMainMenu && !gamePaused) { // Only process movement in game when not paused
+            if (!mainMenu.isActive() && !gamePaused) { // Only process movement in game when not paused
                 if (event.getCode() == KeyCode.W) keyPressed[0] = true;
                 if (event.getCode() == KeyCode.A) keyPressed[1] = true;
                 if (event.getCode() == KeyCode.S) keyPressed[2] = true;
@@ -127,32 +118,8 @@ public class Window extends Application {
         // Replace your existing mouse handlers with:
         // Mouse movement handler
         scene.setOnMouseMoved(event -> {
-            if (inMainMenu) {
-                double mouseX = event.getX();
-                double mouseY = event.getY();
-
-                // Calculate total width of all buttons with spacing
-                double totalWidth = (menuButtonWidth * 3) + (menuButtonSpacing * 2);
-                double startX = (canvas.getWidth() - totalWidth) / 2;
-                double centerY = canvas.getHeight() / 2 - menuButtonHeight/2;
-
-                // Start button hover
-                isStartHovered = mouseX >= startX &&
-                        mouseX <= startX + menuButtonWidth &&
-                        mouseY >= centerY &&
-                        mouseY <= centerY + menuButtonHeight;
-
-                // Options button hover
-                isOptionsHovered = mouseX >= startX + menuButtonWidth + menuButtonSpacing &&
-                        mouseX <= startX + menuButtonWidth * 2 + menuButtonSpacing &&
-                        mouseY >= centerY &&
-                        mouseY <= centerY + menuButtonHeight;
-
-                // Exit button hover
-                isMenuExitHovered = mouseX >= startX + (menuButtonWidth + menuButtonSpacing) * 2 &&
-                        mouseX <= startX + (menuButtonWidth + menuButtonSpacing) * 2 + menuButtonWidth &&
-                        mouseY >= centerY &&
-                        mouseY <= centerY + menuButtonHeight;
+            if (mainMenu.isActive()) {
+                mainMenu.updateHoverStates(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight());
             } else if (gamePaused) {
                 // Update pause menu button positions
                 double centerX = canvas.getWidth() / 2;
@@ -177,41 +144,17 @@ public class Window extends Application {
 
 // Mouse click handler
         scene.setOnMouseClicked(event -> {
-            if (inMainMenu) {
-                double mouseX = event.getX();
-                double mouseY = event.getY();
-
-                // Calculate total width of all buttons with spacing
-                double totalWidth = (menuButtonWidth * 3) + (menuButtonSpacing * 2);
-                double startX = (canvas.getWidth() - totalWidth) / 2;
-                double centerY = canvas.getHeight() / 2 - menuButtonHeight/2;
-
-                // Start button click
-                if (mouseX >= startX &&
-                        mouseX <= startX + menuButtonWidth &&
-                        mouseY >= centerY &&
-                        mouseY <= centerY + menuButtonHeight) {
-                    inMainMenu = false;
+            if (mainMenu.isActive()) {
+                if (mainMenu.isStartClicked(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight())) {
+                    mainMenu.setActive(false);
                     currentMapNumber = 1;
                     tileMap = new TileMap(TileMap.mapChange(currentMapNumber), tileMap.getTileSize());
                     tileMap.setSolidTiles(2, 3);
                     player.setX(tileMap.getTileSize() * 5);
                     player.setY(tileMap.getTileSize() * 5);
-                }
-
-                // Options button click
-                if (mouseX >= startX + menuButtonWidth + menuButtonSpacing &&
-                        mouseX <= startX + menuButtonWidth * 2 + menuButtonSpacing &&
-                        mouseY >= centerY &&
-                        mouseY <= centerY + menuButtonHeight) {
+                } else if (mainMenu.isOptionsClicked(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight())) {
                     System.out.println("Options clicked");
-                }
-
-                // Exit button click
-                if (mouseX >= startX + (menuButtonWidth + menuButtonSpacing) * 2 &&
-                        mouseX <= startX + (menuButtonWidth + menuButtonSpacing) * 2 + menuButtonWidth &&
-                        mouseY >= centerY &&
-                        mouseY <= centerY + menuButtonHeight) {
+                } else if (mainMenu.isExitClicked(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight())) {
                     primaryStage.close();
                 }
             } else if (gamePaused) {
@@ -228,7 +171,7 @@ public class Window extends Application {
                         mouseY >= exitButtonY && mouseY <= exitButtonY + buttonHeight) {
                     // Changed from primaryStage.close() to return to main menu
                     gamePaused = false;
-                    inMainMenu = true;
+                    mainMenu.setActive(true);
 
                     // Reset player position for when they return to game
                     if (tileMap != null) {
@@ -285,13 +228,12 @@ public class Window extends Application {
                 // animation movements
                 player.update(keyPressed[3], keyPressed[1], keyPressed[2], keyPressed[0]);
                 loadPauseMenuImages();
-                loadMainMenuImages();
 
                 // Clear and redraw everything
                 gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
                 // main menu
-                if (inMainMenu) {
-                    drawMainMenu(gc);
+                if (mainMenu.isActive()) {
+                    mainMenu.draw(gc, canvas.getWidth(), canvas.getHeight());
                 } else {
                     // Your existing game drawing code
                     tileMap.draw(gc, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
@@ -336,41 +278,7 @@ public class Window extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-    private void loadMainMenuImages() {
-        startButton = loadImage("resources/start.png");
-        startButtonHover = loadImage("resources/start_hover.png");
-        optionsButton = loadImage("resources/options.png");
-        optionsButtonHover = loadImage("resources/options_hover.png");
-        menuExitButton = loadImage("resources/exit.png");
-        menuExitButtonHover = loadImage("resources/exit_hover.png");
 
-        // Calculate initial positions (will be updated in draw method)
-        menuButtonWidth = 150; // Slightly narrower for side-by-side
-        menuButtonHeight = 150;
-        menuButtonSpacing = 20; // Space between buttons
-    }
-    private void drawMainMenu(GraphicsContext gc) {
-        // Draw white background
-        gc.setFill(javafx.scene.paint.Color.WHITE);
-        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
-        // Calculate total width of all buttons with spacing
-        double totalWidth = (menuButtonWidth * 3) + (menuButtonSpacing * 2);
-        double startX = (canvas.getWidth() - totalWidth) / 2;
-        double centerY = canvas.getHeight() / 2 - menuButtonHeight/2;
-
-        // Draw buttons side by side
-        gc.drawImage(isStartHovered ? startButtonHover : startButton,
-                startX, centerY, menuButtonWidth, menuButtonHeight);
-
-        gc.drawImage(isOptionsHovered ? optionsButtonHover : optionsButton,
-                startX + menuButtonWidth + menuButtonSpacing,
-                centerY, menuButtonWidth, menuButtonHeight);
-
-        gc.drawImage(isMenuExitHovered ? menuExitButtonHover : menuExitButton,
-                startX + (menuButtonWidth + menuButtonSpacing) * 2,
-                centerY, menuButtonWidth, menuButtonHeight);
-    }
     // press escape and pause menu will pop up with resume and exit
     private void loadPauseMenuImages() {
         resumeButton = loadImage("resources/resume.png");
@@ -391,7 +299,7 @@ public class Window extends Application {
     }
     private void drawPauseMenu(GraphicsContext gc) {
         // Draw semi-transparent overlay
-        gc.setFill(javafx.scene.paint.Color.rgb(0, 0, 0, 0.5));
+        gc.setFill(javafx.scene.paint.Color.rgb(0, 0, 0, 0.3));
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         // Draw buttons with hover effects
@@ -402,24 +310,24 @@ public class Window extends Application {
     }
 
     public void transitionMap(int newMapNumber) {
-    // Only start transition if not already fading
-    if (!isFading && !isUnfading) {
-        fadeBlack();
+        // Only start transition if not already fading
+        if (!isFading && !isUnfading) {
+            fadeBlack();
 
-        new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                if (isFadeComplete()) {
-                    // When fade to black is complete, change map
-                    changeMap(newMapNumber);
-                    // Start unfading
-                    unfadeBlack();
-                    this.stop(); // Stop this timer
+            new AnimationTimer() {
+                @Override
+                public void handle(long now) {
+                    if (isFadeComplete()) {
+                        // When fade to black is complete, change map
+                        changeMap(newMapNumber);
+                        // Start unfading
+                        unfadeBlack();
+                        this.stop(); // Stop this timer
+                    }
                 }
-            }
-        }.start();
+            }.start();
+        }
     }
-}
 
     public void changeMap(int newMapNumber) {
         String newMapPath = TileMap.mapChange(newMapNumber);
@@ -456,7 +364,7 @@ public class Window extends Application {
     }
 
     public boolean isFadeComplete() {
-    // Only return true once when the fade completes
+        // Only return true once when the fade completes
         if (fadeComplete) {
             fadeComplete = false;  // Reset the flag
             return true;
