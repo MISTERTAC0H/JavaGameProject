@@ -25,22 +25,13 @@ public class Window extends Application {
     private static final double FADE_SPEED = 0.005; // Adjust speed as needed
     private boolean fadeComplete = false;
     // Add these with your other variables in Window class
-    private boolean gamePaused = false;
-    private Image resumeButton;
-    private Image resumeButtonHover;
-    private Image exitButton;
-    private Image exitButtonHover;
-    private boolean isResumeHovered = false;
-    private boolean isExitHovered = false;
-    private double buttonWidth = 150;
-    private double buttonHeight = 150;
-    private double resumeButtonX, resumeButtonY;
-    private double exitButtonX, exitButtonY;
     private MainMenu mainMenu;
+    private PauseMenu pauseMenu;
 
     @Override
     public void start(Stage primaryStage) {
         mainMenu = new MainMenu();
+        pauseMenu = new PauseMenu();
         int tileSize = 60;
         System.out.println(currentMapNumber);
         tileMap = new TileMap(TileMap.mapChange(currentMapNumber), tileSize);
@@ -96,10 +87,10 @@ public class Window extends Application {
         scene.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
                 if (!mainMenu.isActive()) { // Only allow pausing when in game
-                    gamePaused = !gamePaused;
+                    pauseMenu.togglePause();
                 }
             }
-            if (!mainMenu.isActive() && !gamePaused) { // Only process movement in game when not paused
+            if (!mainMenu.isActive() && !pauseMenu.isPaused()) { // Only process movement in game when not paused
                 if (event.getCode() == KeyCode.W) keyPressed[0] = true;
                 if (event.getCode() == KeyCode.A) keyPressed[1] = true;
                 if (event.getCode() == KeyCode.S) keyPressed[2] = true;
@@ -120,25 +111,9 @@ public class Window extends Application {
         scene.setOnMouseMoved(event -> {
             if (mainMenu.isActive()) {
                 mainMenu.updateHoverStates(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight());
-            } else if (gamePaused) {
-                // Update pause menu button positions
-                double centerX = canvas.getWidth() / 2;
-                double centerY = canvas.getHeight() / 2;
-
-                resumeButtonX = centerX - buttonWidth - 20;
-                resumeButtonY = centerY - buttonHeight/2;
-                exitButtonX = centerX + 20;
-                exitButtonY = centerY - buttonHeight/2;
-
-                // Update hover states for pause menu
-                double mouseX = event.getX();
-                double mouseY = event.getY();
-
-                isResumeHovered = mouseX >= resumeButtonX && mouseX <= resumeButtonX + buttonWidth &&
-                        mouseY >= resumeButtonY && mouseY <= resumeButtonY + buttonHeight;
-
-                isExitHovered = mouseX >= exitButtonX && mouseX <= exitButtonX + buttonWidth &&
-                        mouseY >= exitButtonY && mouseY <= exitButtonY + buttonHeight;
+            } else if (pauseMenu.isPaused()) {
+                pauseMenu.updateButtonPositions(canvas.getWidth(), canvas.getHeight());
+                pauseMenu.updateHoverStates(event.getX(), event.getY());
             }
         });
 
@@ -157,20 +132,13 @@ public class Window extends Application {
                 } else if (mainMenu.isExitClicked(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight())) {
                     primaryStage.close();
                 }
-            } else if (gamePaused) {
-                // Pause menu button clicks
-                double mouseX = event.getX();
-                double mouseY = event.getY();
-
-                if (mouseX >= resumeButtonX && mouseX <= resumeButtonX + buttonWidth &&
-                        mouseY >= resumeButtonY && mouseY <= resumeButtonY + buttonHeight) {
-                    gamePaused = false;
+            } else if (pauseMenu.isPaused()) {
+                if (pauseMenu.isResumeClicked(event.getX(), event.getY())) {
+                    pauseMenu.setPaused(false);
                 }
 
-                if (mouseX >= exitButtonX && mouseX <= exitButtonX + buttonWidth &&
-                        mouseY >= exitButtonY && mouseY <= exitButtonY + buttonHeight) {
-                    // Changed from primaryStage.close() to return to main menu
-                    gamePaused = false;
+                if (pauseMenu.isExitClicked(event.getX(), event.getY())) {
+                    pauseMenu.setPaused(false);
                     mainMenu.setActive(true);
 
                     // Reset player position for when they return to game
@@ -227,7 +195,7 @@ public class Window extends Application {
                 }
                 // animation movements
                 player.update(keyPressed[3], keyPressed[1], keyPressed[2], keyPressed[0]);
-                loadPauseMenuImages();
+
 
                 // Clear and redraw everything
                 gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -239,13 +207,13 @@ public class Window extends Application {
                     tileMap.draw(gc, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
                     player.draw(gc, player.getX() - cameraX, player.getY() - cameraY);
 
-                    if (gamePaused) {
-                        drawPauseMenu(gc); // Your existing method
+                    if (pauseMenu.isPaused()) {
+                        pauseMenu.draw(gc);
                     }
                 }
                 // pause menu
-                if (gamePaused) {
-                    drawPauseMenu(gc);
+                if (pauseMenu.isPaused()) {
+                    pauseMenu.draw(gc);
                 }
 
                 if (isFading || isUnfading) {
@@ -277,36 +245,6 @@ public class Window extends Application {
         primaryStage.setTitle("Dungeon Game");
         primaryStage.setScene(scene);
         primaryStage.show();
-    }
-
-    // press escape and pause menu will pop up with resume and exit
-    private void loadPauseMenuImages() {
-        resumeButton = loadImage("resources/resume.png");
-        resumeButtonHover = loadImage("resources/resume_hover.png");
-        exitButton = loadImage("resources/exit.png");
-        exitButtonHover = loadImage("resources/exit_hover.png");
-
-        // pull the current width and height of the window, buttons should adjust to be center of window
-        double centerX = canvas.getWidth() / 2;
-        double centerY = canvas.getHeight() / 2;
-
-        resumeButtonX = centerX - buttonWidth - 20; // 20px spacing between buttons
-        resumeButtonY = centerY - buttonHeight/2;
-
-        // Exit button on right side
-        exitButtonX = centerX + 20; // 20px spacing between buttons
-        exitButtonY = centerY - buttonHeight/2;
-    }
-    private void drawPauseMenu(GraphicsContext gc) {
-        // Draw semi-transparent overlay
-        gc.setFill(javafx.scene.paint.Color.rgb(0, 0, 0, 0.3));
-        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
-        // Draw buttons with hover effects
-        gc.drawImage(isResumeHovered ? resumeButtonHover : resumeButton,
-                resumeButtonX, resumeButtonY, buttonWidth, buttonHeight);
-        gc.drawImage(isExitHovered ? exitButtonHover : exitButton,
-                exitButtonX, exitButtonY, buttonWidth, buttonHeight);
     }
 
     public void transitionMap(int newMapNumber) {
