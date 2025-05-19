@@ -7,6 +7,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import java.util.*;
 
 public class Window extends Application {
     private TileMap tileMap;
@@ -29,6 +30,7 @@ public class Window extends Application {
     private PauseMenu pauseMenu;
     private OptionsMenu optionsMenu;
     private NPC npc;
+    private ArrayList<NPC> npcs = new ArrayList<>();
 
     @Override
     public void start(Stage primaryStage) {
@@ -65,7 +67,7 @@ public class Window extends Application {
         }
         // initialize player
         player = new Player(idleRight, walkRightFrames, idleLeft, walkLeftFrames, idleFront, walkFrontFrames, idleBack, walkBackFrames, tileSize * 5, tileSize * 5, this);
-        npc = new NPC(tileSize * 10, tileSize * 10, tileSize, tileSize, tileMap);
+        initializeNPCs();
 
         canvas = new Canvas(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -207,11 +209,14 @@ public class Window extends Application {
                         cameraY = player.getY() - canvas.getHeight() / 2;
                     }
                 }
-                // animation movements
+
+                // Update player and NPCs, enemy's in future
                 player.update(keyPressed[3], keyPressed[1], keyPressed[2], keyPressed[0]);
                 // npc only matters when the map is 1
                 if (currentMapNumber == 1) {
-                    npc.update(false, false, false, false);
+                    for (NPC npc : npcs) {
+                        npc.update(false, false, false, false);
+                    }
                 }
 
                 // Clear and redraw everything
@@ -227,9 +232,10 @@ public class Window extends Application {
                     tileMap.draw(gc, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
                     player.draw(gc, player.getX() - cameraX, player.getY() - cameraY);
                     if (currentMapNumber == 1) {
-                        npc.draw(gc, npc.getX() - cameraX, npc.getY() - cameraY);
+                        for (NPC npc : npcs) {
+                            npc.draw(gc, npc.getX() - cameraX, npc.getY() - cameraY);
+                        }
                     }
-
                     if (pauseMenu.isPaused() && !optionsMenu.isActive()) {
                         pauseMenu.draw(gc);
                     }
@@ -270,6 +276,26 @@ public class Window extends Application {
         primaryStage.show();
     }
 
+    private void initializeNPCs() {
+        int tileSize = tileMap.getTileSize();
+
+        // Add NPCs to the list
+        npcs.add(new NPC(
+                tileSize * 10, tileSize * 10, tileSize, tileSize, tileMap,
+                "resources/npc_girl_1_front.png",
+                "resources/npc_girl_1_right.png",
+                "resources/npc_girl_1_left.png",
+                "resources/npc_girl_1_back.png"
+        ));
+        npcs.add(new NPC(
+                tileSize * 10, tileSize * 10, tileSize, tileSize, tileMap,
+                "resources/npc_girl_1_front.png",
+                "resources/npc_girl_1_right.png",
+                "resources/npc_girl_1_left.png",
+                "resources/npc_girl_1_back.png"
+        ));
+    }
+
     public void transitionMap(int newMapNumber) {
         // Only start transition if not already fading
         if (!isFading && !isUnfading) {
@@ -302,8 +328,13 @@ public class Window extends Application {
             player.setX(tileSize * 2);
             player.setY(tileSize * 2);
             // get rid of npc when switching to a map other than world.txt
-            npc.setX(tileSize * 10);
-            npc.setY(tileSize * 10);
+            // Reset all NPCs when changing maps (only if on map 1)
+            if (currentMapNumber == 1) {
+                for (NPC npc : npcs) {
+                    npc.setX(tileSize * 10);
+                    npc.setY(tileSize * 10);
+                }
+            }
 
             // Reset camera
             cameraX = player.getX() - canvas.getWidth() / 2;

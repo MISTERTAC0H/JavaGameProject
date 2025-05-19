@@ -30,9 +30,6 @@ public class TileMap {
             mapNumber = 1;
         }
         switch (mapNumber) {
-            case 0:
-                // return basePath + "DungeonA1.txt";
-                return "maps/MainMenu.txt";
             case 1:
                 // return basePath + "DungeonA1.txt";
                 return "maps/world.txt";

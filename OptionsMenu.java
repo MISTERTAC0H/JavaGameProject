@@ -15,10 +15,6 @@ public class OptionsMenu {
     private Stage primaryStage;
     private MenuSource source;
 
-    // Remove these - they should be passed as references from Window
-    // private MainMenu mainMenu;
-    // private PauseMenu pauseMenu;
-
     public OptionsMenu(Stage primaryStage) {
         this.primaryStage = primaryStage;
         loadImages();
