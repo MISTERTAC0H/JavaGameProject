@@ -13,9 +13,11 @@ public class NPC extends Entity {
     private double directionX = 0;
     private double directionY = 0;
     private double speed = 1.0;
+    private TileMap tileMap;  // Direct reference to the TileMap
 
-    public NPC(double x, double y, double width, double height) {
+    public NPC(double x, double y, double width, double height, TileMap tileMap) {
         super(x, y, width, height, new Image("resources/npc_girl_1_front.png"));
+        this.tileMap = tileMap;
 
         // Load all direction sprites
         this.frontImage = new Image("resources/npc_girl_1_front.png");
@@ -25,6 +27,68 @@ public class NPC extends Entity {
 
         // Start with front image
         this.currentFrame = frontImage;
+    }
+
+    public void tryMove(double dx, double dy) {
+        if (tileMap == null) return;
+
+        int tileSize = tileMap.getTileSize();
+        boolean canMoveX = true;
+        boolean canMoveY = true;
+
+        // Check X movement
+        if (dx != 0) {
+            double newX = x + dx;
+            int leftTile = (int) (newX / tileSize);
+            int rightTile = (int) ((newX + width - 1) / tileSize);
+            int topEdge = (int) (y / tileSize);
+            int bottomEdge = (int) ((y + height - 1) / tileSize);
+
+            if (dx > 0) {
+                for (int row = topEdge; row <= bottomEdge; row++) {
+                    if (tileMap.isSolid(row, rightTile)) {
+                        canMoveX = false;
+                        break;
+                    }
+                }
+            } else {
+                for (int row = topEdge; row <= bottomEdge; row++) {
+                    if (tileMap.isSolid(row, leftTile)) {
+                        canMoveX = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Check Y movement
+        if (dy != 0) {
+            double newY = y + dy;
+            int topTile = (int) (newY / tileSize);
+            int bottomTile = (int) ((newY + height - 1) / tileSize);
+            int leftEdge = (int) (x / tileSize);
+            int rightEdge = (int) ((x + width - 1) / tileSize);
+
+            if (dy > 0) {
+                for (int col = leftEdge; col <= rightEdge; col++) {
+                    if (tileMap.isSolid(bottomTile, col)) {
+                        canMoveY = false;
+                        break;
+                    }
+                }
+            } else {
+                for (int col = leftEdge; col <= rightEdge; col++) {
+                    if (tileMap.isSolid(topTile, col)) {
+                        canMoveY = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Apply movement
+        if (canMoveX) x += dx;
+        if (canMoveY) y += dy;
     }
 
     @Override
@@ -58,7 +122,7 @@ public class NPC extends Entity {
         }
 
         if (isMoving) {
-            move(directionX * speed, directionY * speed);
+            tryMove(directionX * speed, directionY * speed);
         }
     }
 
@@ -79,10 +143,23 @@ public class NPC extends Entity {
         isMoving = false; // Stop moving when interacted with
         moveTimer = 120; // Don't move for a while after interaction
     }
+
     public void setX(double x) { this.x = x; }
     public void setY(double y) { this.y = y; }
     public double getX() { return x; }
     public double getY() { return y; }
     public double getWidth() { return width; }
     public double getHeight() { return height; }
+
+    public void setPosition(double x, double y, TileMap tileMap) {
+        if (tileMap != null) {
+            double maxX = tileMap.getWidth() - this.width;
+            double maxY = tileMap.getHeight() - this.height;
+            this.x = Math.max(0, Math.min(x, maxX));
+            this.y = Math.max(0, Math.min(y, maxY));
+        } else {
+            setX(x);
+            setY(y);
+        }
+    }
 }

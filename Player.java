@@ -117,7 +117,6 @@ public class Player extends Entity {
             //window.changeMap(window.currentMapNumber = 1);
             window.transitionMap(1);
         }
-
     }
     @Override
     public void update(boolean isMovingRight, boolean isMovingLeft, boolean isMovingFront, boolean isMovingBack) {

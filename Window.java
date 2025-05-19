@@ -63,8 +63,7 @@ public class Window extends Application {
         }
         // initialize player
         player = new Player(idleRight, walkRightFrames, idleLeft, walkLeftFrames, idleFront, walkFrontFrames, idleBack, walkBackFrames, tileSize * 5, tileSize * 5, this);
-        // initialize npc
-        npc = new NPC(tileSize * 10, tileSize * 10, tileSize, tileSize);
+        npc = new NPC(tileSize * 10, tileSize * 10, tileSize, tileSize, tileMap);
 
         canvas = new Canvas(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -198,7 +197,10 @@ public class Window extends Application {
                 }
                 // animation movements
                 player.update(keyPressed[3], keyPressed[1], keyPressed[2], keyPressed[0]);
-                npc.update(false, false, false, false);
+                // npc only matters when the map is 1
+                if (currentMapNumber == 1) {
+                    npc.update(false, false, false, false);
+                }
 
                 // Clear and redraw everything
                 gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -209,7 +211,10 @@ public class Window extends Application {
                     // Your existing game drawing code
                     tileMap.draw(gc, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
                     player.draw(gc, player.getX() - cameraX, player.getY() - cameraY);
-                    npc.draw(gc, npc.getX() - cameraX, npc.getY() - cameraY);
+                    // only draw if the map is 1
+                    if (currentMapNumber == 1) {
+                        npc.draw(gc, npc.getX() - cameraX, npc.getY() - cameraY);
+                    }
 
                     if (pauseMenu.isPaused()) {
                         pauseMenu.draw(gc);
@@ -282,7 +287,7 @@ public class Window extends Application {
 
             player.setX(tileSize * 2);
             player.setY(tileSize * 2);
-            // In changeMap() method, right after setting player position
+            // get rid of npc when switching to a map other than world.txt
             npc.setX(tileSize * 10);
             npc.setY(tileSize * 10);
 
