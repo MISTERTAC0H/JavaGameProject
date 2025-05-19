@@ -27,12 +27,14 @@ public class Window extends Application {
     // Add these with your other variables in Window class
     private MainMenu mainMenu;
     private PauseMenu pauseMenu;
+    private OptionsMenu optionsMenu;
     private NPC npc;
 
     @Override
     public void start(Stage primaryStage) {
         mainMenu = new MainMenu();
         pauseMenu = new PauseMenu();
+        optionsMenu = new OptionsMenu(primaryStage);
         int tileSize = 60;
         System.out.println(currentMapNumber);
         tileMap = new TileMap(TileMap.mapChange(currentMapNumber), tileSize);
@@ -111,17 +113,29 @@ public class Window extends Application {
         // Replace your existing mouse handlers with:
         // Mouse movement handler
         scene.setOnMouseMoved(event -> {
-            if (mainMenu.isActive()) {
+            if (mainMenu.isActive() && !optionsMenu.isActive()) {
                 mainMenu.updateHoverStates(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight());
-            } else if (pauseMenu.isPaused()) {
+            } else if (pauseMenu.isPaused() && !optionsMenu.isActive()) {
                 pauseMenu.updateButtonPositions(canvas.getWidth(), canvas.getHeight());
                 pauseMenu.updateHoverStates(event.getX(), event.getY());
+            } else if (optionsMenu.isActive()) {
+                optionsMenu.updateHoverStates(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight());
             }
         });
 
 // Mouse click handler
         scene.setOnMouseClicked(event -> {
-            if (mainMenu.isActive()) {
+            if (optionsMenu.isActive()) {
+                if (optionsMenu.isFullscreenClicked(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight())) {
+                    optionsMenu.toggleFullscreen();
+                } else if (optionsMenu.isBackClicked(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight())) {
+                    optionsMenu.setActive(false, null);
+                    // Return to the appropriate menu based on where options was opened from
+                    if (optionsMenu.getSource() == OptionsMenu.MenuSource.PAUSE_MENU) {
+                        pauseMenu.setPaused(true);
+                    }
+                }
+            } else if (mainMenu.isActive()) {
                 if (mainMenu.isStartClicked(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight())) {
                     mainMenu.setActive(false);
                     currentMapNumber = 1;
@@ -130,20 +144,18 @@ public class Window extends Application {
                     player.setX(tileMap.getTileSize() * 5);
                     player.setY(tileMap.getTileSize() * 5);
                 } else if (mainMenu.isOptionsClicked(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight())) {
-                    System.out.println("Options clicked");
+                    optionsMenu.setActive(true, OptionsMenu.MenuSource.MAIN_MENU);
                 } else if (mainMenu.isExitClicked(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight())) {
                     primaryStage.close();
                 }
             } else if (pauseMenu.isPaused()) {
                 if (pauseMenu.isResumeClicked(event.getX(), event.getY())) {
                     pauseMenu.setPaused(false);
-                }
-
-                if (pauseMenu.isExitClicked(event.getX(), event.getY())) {
+                } else if (pauseMenu.isOptionsClicked(event.getX(), event.getY())) {
+                    optionsMenu.setActive(true, OptionsMenu.MenuSource.PAUSE_MENU);
+                } else if (pauseMenu.isExitClicked(event.getX(), event.getY())) {
                     pauseMenu.setPaused(false);
                     mainMenu.setActive(true);
-
-                    // Reset player position for when they return to game
                     if (tileMap != null) {
                         player.setX(tileMap.getTileSize() * 5);
                         player.setY(tileMap.getTileSize() * 5);
@@ -207,22 +219,24 @@ public class Window extends Application {
                 // main menu
                 if (mainMenu.isActive()) {
                     mainMenu.draw(gc, canvas.getWidth(), canvas.getHeight());
+                    if (optionsMenu.isActive()) {
+                        optionsMenu.draw(gc, canvas.getWidth(), canvas.getHeight(),
+                                mainMenu.isActive(), pauseMenu.isPaused());
+                    }
                 } else {
-                    // Your existing game drawing code
                     tileMap.draw(gc, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
                     player.draw(gc, player.getX() - cameraX, player.getY() - cameraY);
-                    // only draw if the map is 1
                     if (currentMapNumber == 1) {
                         npc.draw(gc, npc.getX() - cameraX, npc.getY() - cameraY);
                     }
 
-                    if (pauseMenu.isPaused()) {
+                    if (pauseMenu.isPaused() && !optionsMenu.isActive()) {
                         pauseMenu.draw(gc);
                     }
-                }
-                // pause menu
-                if (pauseMenu.isPaused()) {
-                    pauseMenu.draw(gc);
+                    if (optionsMenu.isActive()) {
+                        optionsMenu.draw(gc, canvas.getWidth(), canvas.getHeight(),
+                                mainMenu.isActive(), pauseMenu.isPaused());
+                    }
                 }
 
                 if (isFading || isUnfading) {

@@ -12,7 +12,7 @@ public class NPC extends Entity {
     private double moveTimer = 0;
     private double directionX = 0;
     private double directionY = 0;
-    private double speed = 1.0;
+    private double speed = .5;
     private TileMap tileMap;  // Direct reference to the TileMap
 
     public NPC(double x, double y, double width, double height, TileMap tileMap) {
