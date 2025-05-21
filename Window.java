@@ -31,7 +31,7 @@ public class Window extends Application {
     private OptionsMenu optionsMenu;
     private NPC npc;
     private ArrayList<NPC> npcs = new ArrayList<>();
-
+    private ArrayList<Enemy> enemies = new ArrayList<>();
     @Override
     public void start(Stage primaryStage) {
         mainMenu = new MainMenu();
@@ -68,6 +68,7 @@ public class Window extends Application {
         // initialize player
         player = new Player(idleRight, walkRightFrames, idleLeft, walkLeftFrames, idleFront, walkFrontFrames, idleBack, walkBackFrames, tileSize * 5, tileSize * 5, this);
         initializeNPCs();
+        initializeEnemies();
 
         canvas = new Canvas(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -218,6 +219,11 @@ public class Window extends Application {
                         npc.update(false, false, false, false);
                     }
                 }
+                // spawn enemies
+                for (Enemy enemy : enemies) {
+                    enemy.update(false, false, false, false);  // These parameters aren't used by Enemy
+                    enemy.draw(gc, cameraX, cameraY);
+                }
 
                 // Clear and redraw everything
                 gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -231,6 +237,9 @@ public class Window extends Application {
                 } else {
                     tileMap.draw(gc, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
                     player.draw(gc, player.getX() - cameraX, player.getY() - cameraY);
+                    for (Enemy enemy : enemies) {
+                        enemy.draw(gc, enemy.getX() - cameraX, enemy.getY() - cameraY);
+                    }
                     if (currentMapNumber == 1) {
                         for (NPC npc : npcs) {
                             npc.draw(gc, npc.getX() - cameraX, npc.getY() - cameraY);
@@ -295,7 +304,17 @@ public class Window extends Application {
                 "resources/npc_girl_1_back.png"
         ));
     }
+    private void initializeEnemies() {
+        int tileSize = tileMap.getTileSize();
 
+        enemies.add(new Enemy(
+                tileSize * 10, tileSize * 10, tileSize, tileSize, tileMap, this.player,
+                "resources/skeleton_right.png",
+                "resources/skeleton_right.png",
+                "resources/skeleton_right.png",
+                "resources/skeleton_right.png"
+        ));
+    }
     public void transitionMap(int newMapNumber) {
         // Only start transition if not already fading
         if (!isFading && !isUnfading) {
