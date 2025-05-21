@@ -20,15 +20,4 @@ public abstract class Entity {
     public double getY() { return y; }
     public double getWidth() { return width; }
     public double getHeight() { return height; }
-
-
-    public void setPosition(double x, double y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    public void move(double dx, double dy) {
-        this.x += dx;
-        this.y += dy;
-    }
 }
