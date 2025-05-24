@@ -7,6 +7,7 @@ public class HUD {
     private double x, y;
     private double width, height;
     private double padding;
+    private double staminaBarOffset; // Vertical offset for stamina bar
 
     public HUD(Player player) {
         this(player, 10, 10, 200, 25, 5);
@@ -19,32 +20,49 @@ public class HUD {
         this.width = width;
         this.height = height;
         this.padding = padding;
+        this.staminaBarOffset = height + padding; // Position stamina bar below health
     }
 
     public void draw(GraphicsContext gc) {
-        if (player == null) return;  // Only draw when in game
+        if (player == null) return;
 
+        // Draw health bar (existing code)
         double healthPercentage = player.getHealth() / (double)player.getMaxHealth();
         healthPercentage = Math.max(0, Math.min(1, healthPercentage));
 
-        // Draw health bar background (dark gray)
         gc.setFill(Color.rgb(50, 50, 50));
         gc.fillRect(x, y, width, height);
 
-        // Draw current health (red)
-        gc.setFill(Color.RED);  // Use a darker red to be less flashy
+        gc.setFill(Color.RED);
         gc.fillRect(x, y, width * healthPercentage, height);
 
-        // Draw subtle border
         gc.setStroke(Color.rgb(30, 30, 30));
         gc.setLineWidth(3);
         gc.strokeRect(x, y, width, height);
+
+        // Draw stamina bar (new code)
+        double staminaPercentage = player.getStamina() / (double)player.getMaxStamina();
+        staminaPercentage = Math.max(0, Math.min(1, staminaPercentage));
+
+        // Stamina bar background (dark gray)
+        gc.setFill(Color.rgb(50, 50, 50));
+        gc.fillRect(x, y + staminaBarOffset, width, height);
+
+        // Current stamina (green)
+        gc.setFill(getStaminaColor(staminaPercentage));
+        gc.fillRect(x, y + staminaBarOffset, width * staminaPercentage, height);
+
+        // Stamina bar border
+        gc.setStroke(Color.rgb(30, 30, 30));
+        gc.setLineWidth(3);
+        gc.strokeRect(x, y + staminaBarOffset, width, height);
     }
 
-    private Color getHealthColor(double percentage) {
-        if (percentage > 0.6) return Color.LIMEGREEN;
-        if (percentage > 0.3) return Color.GOLD;
-        return Color.CRIMSON;
+    private Color getStaminaColor(double percentage) {
+        // Different shades of green based on stamina level
+        if (percentage > 0.6) return Color.rgb(0, 200, 0);  // Bright green
+        if (percentage > 0.3) return Color.rgb(0, 150, 0);  // Medium green
+        return Color.rgb(0, 100, 0);  // Dark green
     }
 
     // Getters and setters
@@ -56,9 +74,11 @@ public class HUD {
     public void setSize(double width, double height) {
         this.width = width;
         this.height = height;
+        this.staminaBarOffset = height + padding;
     }
 
     public void setPadding(double padding) {
         this.padding = padding;
+        this.staminaBarOffset = height + padding;
     }
 }

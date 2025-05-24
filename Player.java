@@ -22,6 +22,8 @@ public class Player extends Entity {
     private int currentFrameIndex = 0;
     private long lastFrameTime = 0;
     private static final long FRAME_DELAY = 200; // milliseconds between frames
+    private int maxStamina = 100;
+    private int stamina = maxStamina;
 
     public Player(Image idleRight, Image[] walkRightFrames,Image idleLeft, Image[] walkLeftFrames, Image idleFront,
                   Image[] walkFrontFrames, Image idleBack, Image[] walkBackFrames, double x, double y, Window window) {
@@ -186,6 +188,12 @@ public class Player extends Entity {
             gc.drawImage(currentFrame, screenX, screenY, width, height);
         }
     }
+
+    public int getStamina() { return stamina; }
+    public int getMaxStamina() { return maxStamina; }
+    public void setStamina(int stamina) { this.stamina = Math.max(0, Math.min(maxStamina, stamina)); }
+    public void reduceStamina(int amount) { this.stamina = Math.max(0, stamina - amount); }
+    public void restoreStamina(int amount) { this.stamina = Math.min(maxStamina, stamina + amount); }
     public double getX() { return x; }
     public double getY() { return y; }
     public double getWidth() { return width; }
@@ -196,17 +204,5 @@ public class Player extends Entity {
     public void setPosition(double x, double y) {
         setX(x);
         setY(y);
-    }
-
-    public void setPosition(double x, double y, TileMap tileMap) {
-        if (tileMap != null) {
-            double maxX = tileMap.getWidth() - this.width;
-            double maxY = tileMap.getHeight() - this.height;
-            this.x = Math.max(0, Math.min(x, maxX));
-            this.y = Math.max(0, Math.min(y, maxY));
-        } else {
-            setX(x);
-            setY(y);
-        }
     }
 }
