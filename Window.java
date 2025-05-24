@@ -29,6 +29,7 @@ public class Window extends Application {
     private MainMenu mainMenu;
     private PauseMenu pauseMenu;
     private OptionsMenu optionsMenu;
+    private HUD hud;
     private NPC npc;
     private ArrayList<NPC> npcs = new ArrayList<>();
     private ArrayList<Enemy> enemies = new ArrayList<>();
@@ -67,6 +68,7 @@ public class Window extends Application {
         }
         // initialize player
         player = new Player(idleRight, walkRightFrames, idleLeft, walkLeftFrames, idleFront, walkFrontFrames, idleBack, walkBackFrames, tileSize * 5, tileSize * 5, this);
+        hud = new HUD(player);
         initializeNPCs();
         initializeEnemies();
 
@@ -237,6 +239,7 @@ public class Window extends Application {
                 } else {
                     tileMap.draw(gc, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
                     player.draw(gc, player.getX() - cameraX, player.getY() - cameraY);
+                    hud.draw(gc);
                     for (Enemy enemy : enemies) {
                         enemy.draw(gc, enemy.getX() - cameraX, enemy.getY() - cameraY);
                     }
@@ -348,6 +351,10 @@ public class Window extends Application {
             player.setY(tileSize * 2);
             // get rid of npc when switching to a map other than world.txt
             // Reset all NPCs when changing maps (only if on map 1)
+            for (Enemy enemy : enemies) {
+                enemy.setX(tileSize * 10);
+                enemy.setY(tileSize * 10);
+            }
             if (currentMapNumber == 1) {
                 for (NPC npc : npcs) {
                     npc.setX(tileSize * 10);

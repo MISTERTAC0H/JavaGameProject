@@ -23,7 +23,8 @@ public class Player extends Entity {
     private long lastFrameTime = 0;
     private static final long FRAME_DELAY = 200; // milliseconds between frames
 
-    public Player(Image idleRight, Image[] walkRightFrames,Image idleLeft, Image[] walkLeftFrames, Image idleFront, Image[] walkFrontFrames, Image idleBack, Image[] walkBackFrames, double x, double y, Window window) {
+    public Player(Image idleRight, Image[] walkRightFrames,Image idleLeft, Image[] walkLeftFrames, Image idleFront,
+                  Image[] walkFrontFrames, Image idleBack, Image[] walkBackFrames, double x, double y, Window window) {
         super(x, y, idleRight.getWidth() * 1.5, idleRight.getHeight() * 1.5, idleRight);
         this.idleRight = idleRight;
         this.walkRightFrames = walkRightFrames;

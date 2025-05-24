@@ -7,16 +7,15 @@ public class Enemy extends Entity {
     private Image leftImage;
     private Image backImage;
     private TileMap tileMap;
-    private double speed = 1.5;
-    private int detectionRange = 10;
+    private double width, height;
+    private double speed = 1;
+    private int detectionRange = 7;
     private double directionX = 0;
     private double directionY = 0;
     private Player player;
 
     public Enemy(double x, double y, double width, double height, TileMap tileMap,
-                 Player player,  // This is now properly used
-                 String frontImagePath, String rightImagePath,
-                 String leftImagePath, String backImagePath) {
+                 Player player, String frontImagePath, String rightImagePath, String leftImagePath, String backImagePath) {
         super(x, y, width, height, new Image(frontImagePath));
         this.tileMap = tileMap;
         this.player = player;
@@ -25,9 +24,11 @@ public class Enemy extends Entity {
         this.rightImage = new Image(rightImagePath);
         this.leftImage = new Image(leftImagePath);
         this.backImage = new Image(backImagePath);
+        this.width = rightImage.getWidth() * 1.5;
+        this.height = rightImage.getHeight() * 1.5;
     }
 
-    public void tryMove(double dx, double dy) {
+    public void tryMove(double dx, double dy, TileMap tileMap) {
         if (tileMap == null) return;
 
         int tileSize = tileMap.getTileSize();
@@ -113,13 +114,28 @@ public class Enemy extends Entity {
             }
 
             // Move toward player
-            tryMove(directionX * speed, directionY * speed);
+            tryMove(directionX * speed, directionY * speed, tileMap);
         }
     }
 
+    public void resetForNewMap(TileMap newTileMap, double newX, double newY) {
+        this.tileMap = newTileMap;
+        this.x = newX;
+        this.y = newY;
+        this.directionX = 0;
+        this.directionY = 0;
+    }
     public void draw(GraphicsContext gc, double screenX, double screenY) {
         if (gc != null && currentFrame != null) {
-            gc.drawImage(currentFrame, screenX, screenY, width / 1.5, height);
+            gc.drawImage(currentFrame, screenX, screenY, width, height);
+
+            // Draw health bar (optional)
+            double healthPercentage = (double)health / maxHealth;
+            gc.setLineWidth(1);
+            gc.setFill(javafx.scene.paint.Color.RED);
+            gc.fillRect(screenX, screenY - 10, width * healthPercentage, 5);
+            gc.setStroke(javafx.scene.paint.Color.BLACK);
+            gc.strokeRect(screenX, screenY - 10, width, 5);
         }
     }
 
