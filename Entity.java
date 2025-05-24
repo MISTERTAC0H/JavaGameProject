@@ -35,8 +35,7 @@ public abstract class Entity {
         this.criticalHit = Math.min(100, Math.max(0, criticalHit)); // Clamp 0-100
     }
 
-    public abstract void update(boolean isMovingRight, boolean isMovingLeft,
-                                boolean isMovingFront, boolean isMovingBack);
+    public abstract void update(boolean isMovingRight, boolean isMovingLeft, boolean isMovingFront, boolean isMovingBack);
 
     // Combat methods
     public void takeDamage(int damage) {

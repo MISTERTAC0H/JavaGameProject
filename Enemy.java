@@ -1,5 +1,6 @@
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 
 public class Enemy extends Entity {
     private Image frontImage;
@@ -132,7 +133,7 @@ public class Enemy extends Entity {
             // Draw health bar (optional)
             double healthPercentage = (double)health / maxHealth;
             gc.setLineWidth(1);
-            gc.setFill(javafx.scene.paint.Color.RED);
+            gc.setFill(Color.RED);
             gc.fillRect(screenX, screenY - 10, width * healthPercentage, 5);
             gc.setStroke(javafx.scene.paint.Color.BLACK);
             gc.strokeRect(screenX, screenY - 10, width, 5);

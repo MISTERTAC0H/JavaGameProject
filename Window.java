@@ -94,9 +94,15 @@ public class Window extends Application {
 
         // for the main menu so that the character doesnt move
         scene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ESCAPE) {
-                if (!mainMenu.isActive()) { // Only allow pausing when in game
+            if (event.getCode() == KeyCode.ESCAPE ) {
+                if (!mainMenu.isActive() && !optionsMenu.isActive()) {
                     pauseMenu.togglePause();
+                    // ensure that screen doesn't flash red when in options menu,
+                    // also allows for escape as a back button
+                } else if (optionsMenu.isActive()) {
+                    event.consume();
+                    optionsMenu.setActive(false, null);
+                    return;
                 }
             }
             if (!mainMenu.isActive() && !pauseMenu.isPaused()) { // Only process movement in game when not paused
@@ -233,8 +239,7 @@ public class Window extends Application {
                 if (mainMenu.isActive()) {
                     mainMenu.draw(gc, canvas.getWidth(), canvas.getHeight());
                     if (optionsMenu.isActive()) {
-                        optionsMenu.draw(gc, canvas.getWidth(), canvas.getHeight(),
-                                mainMenu.isActive(), pauseMenu.isPaused());
+                        optionsMenu.draw(gc, canvas.getWidth(), canvas.getHeight(), mainMenu.isActive(), pauseMenu.isPaused());
                     }
                 } else {
                     tileMap.draw(gc, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
@@ -252,8 +257,7 @@ public class Window extends Application {
                         pauseMenu.draw(gc);
                     }
                     if (optionsMenu.isActive()) {
-                        optionsMenu.draw(gc, canvas.getWidth(), canvas.getHeight(),
-                                mainMenu.isActive(), pauseMenu.isPaused());
+                        optionsMenu.draw(gc, canvas.getWidth(), canvas.getHeight(), mainMenu.isActive(), pauseMenu.isPaused());
                     }
                 }
 
