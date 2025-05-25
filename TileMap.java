@@ -19,7 +19,7 @@ public class TileMap {
         this.currentMapPath = path;
         loadTileMap(path);
         loadTileImages();
-        setSolidTiles(2, 3);
+        setSolidTiles(2, 3, 8);
         //mapChange(4);
     }
 
@@ -31,11 +31,11 @@ public class TileMap {
         }
         switch (mapNumber) {
             case 1:
-                // return basePath + "DungeonA1.txt";
                 return "maps/world.txt";
             case 2:
-                // return basePath + "DungeonA1.txt";
                 return "maps/DungeonA1.txt";
+            case 3:
+                return "maps/StartHouse.txt";
             default:
                 // Return a default map or handle invalid input
                 // return basePath + "world.txt";
@@ -76,9 +76,9 @@ public class TileMap {
     }
 
     private void loadTileImages() {
-        tileImages = new Image[8];
+        tileImages = new Image[9];
         // walk on
-        tileImages[0] = new Image(getClass().getResourceAsStream("resources/GrassGPT.png")); // Grass
+        tileImages[0] = new Image(getClass().getResourceAsStream("resources/Grass2.png")); // Grass
         tileImages[1] = new Image(getClass().getResourceAsStream("resources/GrassWithGrass1.png")); // Grass With Grass
         tileImages[7] = new Image(getClass().getResourceAsStream("resources/GrassWithGrass2.png")); // Grass With Grass
         tileImages[5] = new Image(getClass().getResourceAsStream("resources/RockFloor.png")); // Rock floor
@@ -88,6 +88,7 @@ public class TileMap {
         // cant walk on
         tileImages[2] = new Image(getClass().getResourceAsStream("resources/CobbleStone.png")); // Cobblestone
         tileImages[3] = new Image(getClass().getResourceAsStream("resources/Tree.png")); // Tree
+        tileImages[8] = new Image(getClass().getResourceAsStream("resources/Black.png")); // Tree
     }
 
     public void draw(GraphicsContext gc, double cameraX, double cameraY, double canvasWidth, double canvasHeight) {

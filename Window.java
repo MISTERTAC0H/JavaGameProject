@@ -38,10 +38,11 @@ public class Window extends Application {
         mainMenu = new MainMenu();
         pauseMenu = new PauseMenu();
         optionsMenu = new OptionsMenu(primaryStage);
+        optionsMenu.toggleFullscreen();
         int tileSize = 60;
         System.out.println(currentMapNumber);
         tileMap = new TileMap(TileMap.mapChange(currentMapNumber), tileSize);
-        tileMap.setSolidTiles(2, 3);
+        tileMap.setSolidTiles(2, 3, 8);
 
         // Player animations
         Image idleRight = loadImage("resources/guy_right.png");
@@ -244,7 +245,6 @@ public class Window extends Application {
                 } else {
                     tileMap.draw(gc, cameraX, cameraY, canvas.getWidth(), canvas.getHeight());
                     player.draw(gc, player.getX() - cameraX, player.getY() - cameraY);
-                    hud.draw(gc);
                     for (Enemy enemy : enemies) {
                         enemy.draw(gc, enemy.getX() - cameraX, enemy.getY() - cameraY);
                     }
@@ -259,6 +259,7 @@ public class Window extends Application {
                     if (optionsMenu.isActive()) {
                         optionsMenu.draw(gc, canvas.getWidth(), canvas.getHeight(), mainMenu.isActive(), pauseMenu.isPaused());
                     }
+                    hud.draw(gc);
                 }
 
                 if (isFading || isUnfading) {
