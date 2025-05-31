@@ -140,6 +140,9 @@ public class Enemy extends Entity {
         }
     }
 
+    public void setTileMap(TileMap tileMap) {
+        this.tileMap = tileMap;
+    }
     // Getters and setters
     public double getX() { return x; }
     public double getY() { return y; }

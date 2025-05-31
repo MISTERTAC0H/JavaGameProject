@@ -349,17 +349,22 @@ public class Window extends Application {
             this.currentMapNumber = newMapNumber;
             int tileSize = tileMap.getTileSize();
 
-            tileMap = new TileMap(newMapPath, tileSize);
-            tileMap.setSolidTiles(2, 3);
+            // Create new tilemap
+            TileMap newTileMap = new TileMap(newMapPath, tileSize);
+            newTileMap.setSolidTiles(2, 3);
 
+            // Update player position
             player.setX(tileSize * 2);
             player.setY(tileSize * 2);
-            // get rid of npc when switching to a map other than world.txt
-            // Reset all NPCs when changing maps (only if on map 1)
+
+            // Update all enemies with the new tilemap
             for (Enemy enemy : enemies) {
                 enemy.setX(tileSize * 10);
                 enemy.setY(tileSize * 10);
+                enemy.setTileMap(newTileMap);
             }
+
+            // Reset NPCs if needed
             if (currentMapNumber == 1) {
                 for (NPC npc : npcs) {
                     npc.setX(tileSize * 10);
@@ -367,11 +372,12 @@ public class Window extends Application {
                 }
             }
 
+            // Update the tilemap reference
+            this.tileMap = newTileMap;
+
             // Reset camera
             cameraX = player.getX() - canvas.getWidth() / 2;
             cameraY = player.getY() - canvas.getHeight() / 2;
-
-            System.out.println("Changed to map #" + newMapNumber);
         }
     }
 
