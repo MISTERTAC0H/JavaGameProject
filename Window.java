@@ -232,6 +232,7 @@ public class Window extends Application {
                 for (Enemy enemy : enemies) {
                     enemy.update(false, false, false, false);  // These parameters aren't used by Enemy
                     enemy.draw(gc, cameraX, cameraY);
+                    enemy.checkPlayerCollision(player);
                 }
 
                 // Clear and redraw everything
@@ -380,7 +381,8 @@ public class Window extends Application {
             cameraY = player.getY() - canvas.getHeight() / 2;
         }
     }
-
+    // returns the current tile map
+    public TileMap getCurrentTileMap() { return this.tileMap; }
     public void fadeBlack() {
         fadeOpacity = 0.0;
         isFading = true;

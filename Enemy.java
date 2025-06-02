@@ -139,7 +139,18 @@ public class Enemy extends Entity {
             gc.strokeRect(screenX, screenY - 10, width, 5);
         }
     }
-
+    /*
+    check for player and enemy collisions, cause damage if they collide
+    can  make different types depending on damage
+     */
+    public void checkPlayerCollision(Player player) {
+        if (player != null && collidesWith(player) && player.canTakeDamage()) {
+            // Pass enemy's center position for knockback direction
+            double enemyCenterX = this.x + this.width/2;
+            double enemyCenterY = this.y + this.height/2;
+            player.takeDamage(10, enemyCenterX, enemyCenterY);
+        }
+    }
     public void setTileMap(TileMap tileMap) {
         this.tileMap = tileMap;
     }

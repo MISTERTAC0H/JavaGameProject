@@ -1,6 +1,6 @@
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import java.util.*;
+import javafx.scene.paint.Color;
 
 public class Player extends Entity {
     private Image idleRight;  // guy_right.png
@@ -24,6 +24,18 @@ public class Player extends Entity {
     private static final long FRAME_DELAY = 200; // milliseconds between frames
     private int maxStamina = 100;
     private int stamina = maxStamina;
+    private long lastDamageTime = 0; // used for ddamage
+    private static final long DAMAGE_COOLDOWN = 1000; // 1 second
+    // Add these with your other fields
+    private double knockbackX = 0;
+    private double knockbackY = 0;
+    private boolean isKnockbackActive = false;
+    private long knockbackEndTime = 0;
+    private static final long KNOCKBACK_DURATION = 300; // milliseconds
+    private static final double KNOCKBACK_FORCE = 8.0;
+    private boolean isHit = false;
+    private long hitStartTime = 0;
+    private static final long HIT_FLASH_DURATION = 200; // milliseconds
 
     public Player(Image idleRight, Image[] walkRightFrames,Image idleLeft, Image[] walkLeftFrames, Image idleFront,
                   Image[] walkFrontFrames, Image idleBack, Image[] walkBackFrames, double x, double y, Window window) {
@@ -43,7 +55,10 @@ public class Player extends Entity {
         this.y = y;
         this.window = window;
     }
-
+    /*
+        checks player x and y and compare it to walkable and nonwalkable tiles,
+        if trying to move onto a nonwalkable tile, doesnt do anything, acts as a barrier
+     */
     public void tryMove(double dx, double dy, TileMap tileMap) {
         if (tileMap == null) return;
 
@@ -121,8 +136,12 @@ public class Player extends Entity {
             window.transitionMap(1);
         }
     }
+    /*
+        updates the playes sprite with its different sprite "positions" like front, back, left, and right
+    */
     @Override
     public void update(boolean isMovingRight, boolean isMovingLeft, boolean isMovingFront, boolean isMovingBack) {
+        applyKnockback(window.getCurrentTileMap()); // You'll need to add this method to Window
         long currentTime = System.currentTimeMillis();
         // move right
         if (isMovingRight) {
@@ -182,10 +201,69 @@ public class Player extends Entity {
             currentFrameIndex = 0;
         }
     }
-
+    // draws the current frame of the player
     public void draw(GraphicsContext gc, double screenX, double screenY) {
         if (gc != null && currentFrame != null) {
+            // Flash effect when hit - add this at the start of the method
+            if (isHit) {
+                long timeSinceHit = System.currentTimeMillis() - hitStartTime;
+                if (timeSinceHit < HIT_FLASH_DURATION) {
+                    // Calculate fading flash intensity
+                    double flashIntensity = 0.7 * (1 - (timeSinceHit / (double)HIT_FLASH_DURATION));
+                    gc.setFill(Color.rgb(255, 0, 0, flashIntensity));
+                    gc.fillRect(screenX, screenY, width, height);
+                } else {
+                    isHit = false; // Reset hit state when duration ends
+                }
+            }
+
+            // Original drawing code - keep this
             gc.drawImage(currentFrame, screenX, screenY, width, height);
+        }
+    }
+    // checks if the player is capable of taking damage, designated time must pass for damage to reoccur
+    public boolean canTakeDamage() {
+        return System.currentTimeMillis() - lastDamageTime > DAMAGE_COOLDOWN;
+    }
+    // does the damage
+
+    public void takeDamage(int amount, double sourceX, double sourceY) {
+        if (canTakeDamage()) {
+            health = Math.max(0, health - amount);
+            lastDamageTime = System.currentTimeMillis();
+
+            // Calculate direction away from damage source
+            double dx = this.x - sourceX;
+            double dy = this.y - sourceY;
+            double distance = Math.sqrt(dx*dx + dy*dy);
+
+            // Normalize and apply knockback force
+            if (distance > 0) {
+                knockbackX = (dx/distance) * KNOCKBACK_FORCE;
+                knockbackY = (dy/distance) * KNOCKBACK_FORCE;
+            }
+
+            isKnockbackActive = true;
+            knockbackEndTime = System.currentTimeMillis() + KNOCKBACK_DURATION;
+
+            // Visual feedback
+            isHit = true;
+            hitStartTime = System.currentTimeMillis();
+        }
+    }
+    // applys the knockback to the player.
+    private void applyKnockback(TileMap tileMap) {
+        if (isKnockbackActive) {
+            if (System.currentTimeMillis() > knockbackEndTime) {
+                isKnockbackActive = false;
+            } else {
+                // Apply knockback regardless of player input
+                tryMove(knockbackX, knockbackY, tileMap);
+
+                // Reduce knockback over time for smoother effect
+                knockbackX *= 0.9;
+                knockbackY *= 0.9;
+            }
         }
     }
 

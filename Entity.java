@@ -53,7 +53,12 @@ public abstract class Entity {
         }
         return attack;
     }
-
+    public boolean collidesWith(Entity other) {
+        return x < other.getX() + other.getWidth() &&
+                x + width > other.getX() &&
+                y < other.getY() + other.getHeight() &&
+                y + height > other.getY();
+    }
     // Attribute getters and setters
     public int getXp() { return xp; }
     public void setXp(int xp) { this.xp = xp; }
