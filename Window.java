@@ -107,10 +107,22 @@ public class Window extends Application {
                 }
             }
             if (!mainMenu.isActive() && !pauseMenu.isPaused()) { // Only process movement in game when not paused
+                // walk
                 if (event.getCode() == KeyCode.W) keyPressed[0] = true;
                 if (event.getCode() == KeyCode.A) keyPressed[1] = true;
                 if (event.getCode() == KeyCode.S) keyPressed[2] = true;
                 if (event.getCode() == KeyCode.D) keyPressed[3] = true;
+                // inventory
+                if (event.getCode() == KeyCode.E) player.getInventory().setVisible(!player.getInventory().isVisible());
+                if (event.getCode() == KeyCode.DIGIT1) player.getInventory().selectHotbarSlot(0);
+                if (event.getCode() == KeyCode.DIGIT2) player.getInventory().selectHotbarSlot(1);
+                if (event.getCode() == KeyCode.DIGIT3) player.getInventory().selectHotbarSlot(2);
+                if (event.getCode() == KeyCode.DIGIT4) player.getInventory().selectHotbarSlot(3);
+                if (event.getCode() == KeyCode.DIGIT5) player.getInventory().selectHotbarSlot(4);
+                if (event.getCode() == KeyCode.DIGIT6) player.getInventory().selectHotbarSlot(5);
+                if (event.getCode() == KeyCode.DIGIT7) player.getInventory().selectHotbarSlot(6);
+                if (event.getCode() == KeyCode.DIGIT8) player.getInventory().selectHotbarSlot(7);
+                if (event.getCode() == KeyCode.DIGIT9) player.getInventory().selectHotbarSlot(8);
             }
         });
 
@@ -261,6 +273,7 @@ public class Window extends Application {
                         optionsMenu.draw(gc, canvas.getWidth(), canvas.getHeight(), mainMenu.isActive(), pauseMenu.isPaused());
                     }
                     hud.draw(gc);
+                    player.getInventory().draw(gc);
                 }
 
                 if (isFading || isUnfading) {

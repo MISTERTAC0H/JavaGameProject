@@ -36,6 +36,7 @@ public class Player extends Entity {
     private boolean isHit = false;
     private long hitStartTime = 0;
     private static final long HIT_FLASH_DURATION = 200; // milliseconds
+    private Inventory inventory;
 
     public Player(Image idleRight, Image[] walkRightFrames,Image idleLeft, Image[] walkLeftFrames, Image idleFront,
                   Image[] walkFrontFrames, Image idleBack, Image[] walkBackFrames, double x, double y, Window window) {
@@ -54,6 +55,10 @@ public class Player extends Entity {
         this.x = x;
         this.y = y;
         this.window = window;
+        this.inventory = new Inventory();
+    }
+    public Inventory getInventory() {
+        return inventory;
     }
     /*
         checks player x and y and compare it to walkable and nonwalkable tiles,
