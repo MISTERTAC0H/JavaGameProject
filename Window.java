@@ -93,26 +93,28 @@ public class Window extends Application {
             cameraY = Math.max(0, Math.min(cameraY, tileMap.getHeight() - newVal.doubleValue()));
         });
 
-        // for the main menu so that the character doesnt move
+        // Handles button inputs
         scene.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE ) {
-                if (!mainMenu.isActive() && !optionsMenu.isActive()) {
+                if (player.getInventory().isVisible()) {
+                    // Close inventory if it's open
+                    player.getInventory().setVisible(false);
+                    event.consume(); // Prevent other ESCAPE handlers from triggering
+                } else if (!mainMenu.isActive() && !optionsMenu.isActive()) {
                     pauseMenu.togglePause();
-                    // ensure that screen doesn't flash red when in options menu,
-                    // also allows for escape as a back button
                 } else if (optionsMenu.isActive()) {
-                    event.consume();
+                    event.consume();    // Ensure that screen doesn't flash red when in options menu, also allows for escape as a back button
                     optionsMenu.setActive(false, null);
                     return;
                 }
             }
             if (!mainMenu.isActive() && !pauseMenu.isPaused()) { // Only process movement in game when not paused
-                // walk
+                // Walking buttons
                 if (event.getCode() == KeyCode.W) keyPressed[0] = true;
                 if (event.getCode() == KeyCode.A) keyPressed[1] = true;
                 if (event.getCode() == KeyCode.S) keyPressed[2] = true;
                 if (event.getCode() == KeyCode.D) keyPressed[3] = true;
-                // inventory
+                // Inventory/Hotbar buttons
                 if (event.getCode() == KeyCode.E) player.getInventory().setVisible(!player.getInventory().isVisible());
                 if (event.getCode() == KeyCode.DIGIT1) player.getInventory().selectHotbarSlot(0);
                 if (event.getCode() == KeyCode.DIGIT2) player.getInventory().selectHotbarSlot(1);
@@ -132,9 +134,20 @@ public class Window extends Application {
             if (event.getCode() == KeyCode.S) keyPressed[2] = false;
             if (event.getCode() == KeyCode.D) keyPressed[3] = false;
         });
+        // scrool wheel for inventory
+        scene.setOnScroll(event -> {
+            if (!mainMenu.isActive() && !pauseMenu.isPaused()) {
+                double delta = event.getDeltaY(); // Positive for scroll up, negative for scroll down
+                if (delta > 0) {
+                    // Scroll up - move hotbar selection right
+                    player.getInventory().scrollHotbar(1);
+                } else if (delta < 0) {
+                    // Scroll down - move hotbar selection left
+                    player.getInventory().scrollHotbar(-1);
+                }
+            }
+        });
 
-        // Add mouse movement handler for button hover effects
-        // Replace your existing mouse handlers with:
         // Mouse movement handler
         scene.setOnMouseMoved(event -> {
             if (mainMenu.isActive() && !optionsMenu.isActive()) {
@@ -147,7 +160,7 @@ public class Window extends Application {
             }
         });
 
-// Mouse click handler
+        // Mouse click handler
         scene.setOnMouseClicked(event -> {
             if (optionsMenu.isActive()) {
                 if (optionsMenu.isFullscreenClicked(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight())) {
