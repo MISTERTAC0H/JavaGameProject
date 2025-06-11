@@ -150,6 +150,28 @@ public class Window extends Application {
 
         // Mouse movement handler
         scene.setOnMouseMoved(event -> {
+            if (player.getInventory().isVisible()) {
+                Inventory inventory = player.getInventory();
+                // Calculate position relative to inventory
+                double inventoryWidth = inventory.getMainCols() *
+                        (inventory.getSlotSize() + inventory.getSlotSpacing()) +
+                        inventory.getPadding() * 2;
+                double inventoryHeight = (inventory.getMainRows() + inventory.getHotbarRows() + 1) *
+                        (inventory.getSlotSize() + inventory.getSlotSpacing()) +
+                        inventory.getPadding() * 2;
+
+                double inventoryX = (canvas.getWidth() - inventoryWidth) / 2;
+                double inventoryY = (canvas.getHeight() - inventoryHeight) / 2;
+
+                double mouseX = event.getX() - inventoryX;
+                double mouseY = event.getY() - inventoryY;
+
+                inventory.updateHoverState(mouseX, mouseY);
+            }
+            // Keep your existing hover logic for other UI elements
+            else if (mainMenu.isActive() && !optionsMenu.isActive()) {
+                mainMenu.updateHoverStates(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight());
+            }
             if (mainMenu.isActive() && !optionsMenu.isActive()) {
                 mainMenu.updateHoverStates(event.getX(), event.getY(), canvas.getWidth(), canvas.getHeight());
             } else if (pauseMenu.isPaused() && !optionsMenu.isActive()) {
@@ -198,6 +220,12 @@ public class Window extends Application {
                         player.setY(tileMap.getTileSize() * 5);
                     }
                 }
+            }
+        });
+
+        scene.setOnMouseExited(event -> {
+            if (player.getInventory().isVisible()) {
+                player.getInventory().clearHoverState();
             }
         });
 

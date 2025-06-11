@@ -29,6 +29,8 @@ public class Inventory {
     private double slotSpacing = 5;
     private double padding = 20;
     private Font itemFont = new Font("Arial", 14);
+    private int hoveredSlotIndex = -1;
+    private boolean isHotbarHovered = false;
 
     public Inventory() {
         this.items = new HashMap<>();
@@ -171,13 +173,23 @@ public class Inventory {
     }
 
     private void drawSlot(GraphicsContext gc, double x, double y, int slotIndex, boolean isSelected) {
-        // Draw slot background
-        gc.setFill(isSelected ? Color.GOLD : Color.DARKGRAY);
+        // Determine if this slot is being hovered
+        boolean isHovered = (slotIndex == hoveredSlotIndex);
+
+        // Draw slot background - hover takes precedence over selection
+        if (isHovered) {
+            gc.setFill(Color.rgb(255, 255, 0, 0.3)); // Semi-transparent yellow
+        } else if (isSelected) {
+            gc.setFill(Color.GOLD);
+        } else {
+            gc.setFill(Color.DARKGRAY);
+        }
+
         gc.fillRect(x, y, slotSize, slotSize);
         gc.setStroke(Color.WHITE);
         gc.strokeRect(x, y, slotSize, slotSize);
 
-        // Draw item if exists
+        // Rest of your existing drawSlot code...
         if (slotIndex < itemOrder.size()) {
             Item item = items.get(itemOrder.get(slotIndex));
             if (item.getImage() != null) {
@@ -186,7 +198,6 @@ public class Inventory {
                         y + (slotSize - item.getImage().getHeight()) / 2);
             }
 
-            // Draw quantity if stackable
             if (item.isStackable() && item.getQuantity() > 1) {
                 gc.setFill(Color.WHITE);
                 gc.setFont(itemFont);
@@ -196,8 +207,48 @@ public class Inventory {
             }
         }
     }
+    public int getSlotAtPosition(double mouseX, double mouseY) {
+        // Check main inventory slots
+        for (int row = 0; row < MAIN_ROWS; row++) {
+            for (int col = 0; col < MAIN_COLS; col++) {
+                double slotX = calculateMainInventoryX(col);
+                double slotY = calculateMainInventoryY(row);
 
+                if (mouseX >= slotX && mouseX <= slotX + slotSize &&
+                        mouseY >= slotY && mouseY <= slotY + slotSize) {
+                    return row * MAIN_COLS + col;
+                }
+            }
+        }
+
+        // Check hotbar slots
+        double hotbarY = calculateHotbarY();
+        for (int col = 0; col < HOTBAR_COLS; col++) {
+            double slotX = calculateHotbarX(col);
+            if (mouseX >= slotX && mouseX <= slotX + slotSize &&
+                    mouseY >= hotbarY && mouseY <= hotbarY + slotSize) {
+                return MAIN_INVENTORY_SLOTS + col;
+            }
+        }
+
+        return -1; // No slot found at this position
+    }
+    public void updateHoverState(double mouseX, double mouseY) { hoveredSlotIndex = getSlotAtPosition(mouseX, mouseY); }
+    public void clearHoverState() { hoveredSlotIndex = -1; }
     // Getters and setters for potential future use...
+    // Add these calculation methods to your Inventory class
+    private double calculateMainInventoryX(int col) { return padding + col * (slotSize + slotSpacing); }
+    private double calculateMainInventoryY(int row) { return 50 + row * (slotSize + slotSpacing); }
+
+    private double calculateHotbarX(int col) { return padding + col * (slotSize + slotSpacing); }
+    private double calculateHotbarY() { return calculateMainInventoryY(MAIN_ROWS) + padding; }
+    public int getMainCols() { return MAIN_COLS; }
+    public int getHotbarCols() { return HOTBAR_COLS; }
+    public int getMainRows() { return MAIN_ROWS; }
+    public int getHotbarRows() { return HOTBAR_ROWS; }
+    public double getSlotSize() { return slotSize; }
+    public double getSlotSpacing() { return slotSpacing; }
+    public double getPadding() { return padding; }
     public boolean isVisible() { return isVisible; }
     public void setVisible(boolean visible) { isVisible = visible; }
     public int getSelectedHotbarIndex() { return selectedHotbarIndex; }
