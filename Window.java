@@ -67,11 +67,13 @@ public class Window extends Application {
             System.err.println("Failed to load player image!");
             return;
         }
-        // initialize player
+        // initialize player and necessary assets
         player = new Player(idleRight, walkRightFrames, idleLeft, walkLeftFrames, idleFront, walkFrontFrames, idleBack, walkBackFrames, tileSize * 5, tileSize * 5, this);
         hud = new HUD(player);
         initializeNPCs();
         initializeEnemies();
+        Sword ironSword = new Sword();
+        player.getInventory().addItem(ironSword);
 
         canvas = new Canvas(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
