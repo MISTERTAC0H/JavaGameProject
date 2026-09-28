@@ -9,7 +9,20 @@ JavaFX version - 17.0.15
 
 JavaFX documentation: https://www.oracle.com/java/technologies/javase/javafx-docs.html
 
-eguard.atlassian.net
+run with .\run.bat
+
+PROJECT LAYOUT
+src/game/       Java source (package "game"), entry point is game.Main
+src/resources/  Sprites and UI images
+src/maps/       Tile maps (.txt)
+Load assets with Assets.image("resources/Name.png") / Assets.open("maps/name.txt")
+
+RUNNING
+Command line: .\run.bat  (expects the JavaFX SDK at %USERPROFILE%\Downloads\javafx-sdk-17.0.15,
+              or set JAVAFX_HOME to wherever it is)
+VS Code:      "Run Game" launch configuration
+IntelliJ:     run game.Main with VM options
+              --module-path <path-to-javafx-sdk>/lib --add-modules javafx.controls
 
 Contributors: Evan Guard
 

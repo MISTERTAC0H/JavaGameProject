@@ -1,0 +1,8 @@
+# Build output
+bin/
+out/
+build/
+
+# IntelliJ per-user files
+.idea/workspace.xml
+.idea/shelf/

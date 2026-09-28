@@ -1,7 +1,7 @@
 {
   "java.project.sourcePaths": [
-    "JavaGameProject"
-],
+    "src"
+  ],
   "java.project.outputPath": "bin",
   "java.project.referencedLibraries": [
     "C:\\Users\\evang\\Downloads\\javafx-sdk-17.0.15\\lib\\*.jar"

@@ -3,17 +3,10 @@
   "configurations": [
     {
       "type": "java",
-      "name": "Main",
+      "name": "Run Game",
       "request": "launch",
-      "mainClass": "Main",
-      "projectName": "JavaGameProject_9eecd516"
-    },
-    {
-      "type": "java",
-      "name": "Launch Window",
-      "request": "launch",
-      "mainClass": "Window",
-      "vmArgs": "--module-path C:/Users/evang/OneDrive/Desktop/javafx-sdk-17.0.15/lib --add-modules javafx.controls"
+      "mainClass": "game.Main",
+      "vmArgs": "--module-path C:/Users/evang/Downloads/javafx-sdk-17.0.15/lib --add-modules javafx.controls"
     }
   ]
 }
